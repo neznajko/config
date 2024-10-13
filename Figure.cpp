@@ -20,9 +20,28 @@ Figure* Figure::factory( fig_t type, color_t color, Node* node )
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-string Figure::coord() const {
-    return Board::get_coord( sq->get_ofst());
+inline ofst_t Figure::get_ofst() const {
+    return sq->get_ofst();
 }
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+string Figure::coord() const {
+    return Board::get_coord( get_ofst());
+}
+//////////////////////////////////////////////////////////////be
+///////////////////////////////////////////////////////////////c
+///////////////////////////////////////////////////////////////o
+///////////////////////////////////////////////////////////////z
+void Figure::getmoves( vector <Move> &moves ) const {
+    ofst_t src = get_ofst();
+    for( ofst_t dst: ofsts ){
+        color_t kolor = board.get_color( dst );
+        if( color == kolor ) continue;
+        move_t type = kolor == RED ? MOVE : CRON;
+        moves.push_back({ type, src, dst });
+    } 
+}
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& _ , const Figure* fig ){
@@ -33,7 +52,16 @@ ostream& operator <<( ostream& _ , const Figure* fig ){
             _ << Board::get_coord( ofst ) << " ";
         }
     }
-    return _ << "}";
+    _ << "}";
+    // dump cache offsets
+    for( const auto& ofsts: fig->cache ){
+        _ << endl << "     ( ";
+        for( ofst_t ofst: ofsts ){
+            _ << Board::get_coord( ofst ) << ' ';
+        }
+        _ << ')';
+    }
+    return _;
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -88,7 +116,7 @@ const vector <ofst_t> Shortrange::DR[] = {
 ////////////////////////////////////////////////////////////////
 void Shortrange::subs() 
 {
-    ofst_t orig = sq->get_ofst();
+    ofst_t orig = get_ofst();
     for( ofst_t k: dr ){
         k += orig;
         if( board.get_color( k ) != BLUE ){

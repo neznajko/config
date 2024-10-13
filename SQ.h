@@ -49,6 +49,14 @@ public:
     void Unregister( Figure* fig ){
         subscribers.erase( fig );
     }
+    bool check( color_t color ) const {
+        for( Figure* fig: subscribers ){
+            if( fig->get_color() == color ){
+                return true;
+            }
+        }
+        return false;
+    }
     friend ostream& operator <<( ostream& _ , const SQ* sq );
 };
 ////////////////////////////////////////////////////////////////

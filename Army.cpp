@@ -24,6 +24,6 @@ ostream& operator <<( ostream& ostrm, const Army& army ){
         ostrm << " " << unit;
         unit = unit->next;
     } while( unit != army.king );
-    return ostrm;
+    return ostrm << army.bench;
 }
 ////////////////////////////////////////////////////////////////

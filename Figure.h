@@ -5,17 +5,16 @@
 # include <map>
 # include <cctype>
 # include <unordered_set>
-# include <vector>
 # include <string>
 # include <utility> // move
 ////////////////////////////////////////////////////////////////
 class SQ;
 class Node;
 class Board;
+struct Move;
 ////////////////////////////////////////////////////////////////
 using std::map;
 using std::unordered_set;
-using std::vector;
 using std::string;
 ////////////////////////////////////////////////////////////////
 class Figure {
@@ -49,7 +48,7 @@ public://///////////////////////////////////////////////////////
             return "KQRBNP ="[ type ];
         }
     }
-    static Figure* factory( fig_t type, color_t color, Node* node );
+    static Figure* factory( fig_t type, color_t clr, Node* node );
     /////////////////////////////////////////////////////////////
     char ch() const {
         return get_char( type, color );
@@ -64,7 +63,9 @@ public://///////////////////////////////////////////////////////
         return sq;
     }
     ////////////////////////////////////////////////////////////
+    ofst_t get_ofst() const;
     string coord() const;
+    void getmoves( vector <Move> & moves ) const;
     /////////////////////////////////////////////////////////////
     virtual ~Figure(){}
     virtual void subs(){};

@@ -1,5 +1,9 @@
 ////////////////////////////////////////////////////////////////
 # include "Brush.h"
+# include "Castle.h"
+# include <sstream>
+////////////////////////////////////////////////////////////////
+using namespace std;
 ////////////////////////////////////////////////////////////////
 ofst_t Board::get_ofst( const string& sqr )
 {
@@ -31,6 +35,41 @@ Board::Board() {
         sqs.emplace_back( j, unit );
     }
 }
+///////////////////////////////////////////////////////////////=
+// getfen helper functioin
+inline 
+void flush( stringstream& ss, int& empty_square_counter, char c )
+{
+    if( empty_square_counter > 0 ){
+        ss << empty_square_counter;
+        empty_square_counter = 0;
+    }
+    ss << c;
+}
+////////////////////////////////////////////////////////////////
+string Board::getfen() const
+{
+    stringstream ss;
+    int empty_square_counter = 0;
+    for( int i  = PROMOTION_RANK[ WHITE ];
+             i <= PROMOTION_RANK[ BLACK ]; ++i ){
+        for( int j =  Castle::ROOK_FILE[ QSIDE ];
+                 j <= Castle::ROOK_FILE[ KSIDE ]; ++j ){
+            char c = get_unit( get_ofst( i, j ))->ch();
+            //
+            if( c != ' ' ){
+                flush( ss, empty_square_counter, c );
+            } else {
+                ++empty_square_counter;
+            }
+        }
+        flush( ss, empty_square_counter, '/' );
+    }
+    string s = ss.str();
+    s.pop_back();
+    return s;
+}
+///////////////////////////////////////////////////////////////=
 ///////////////////////////////////////////////////////////////=
 ostream& operator <<( ostream& _ , const Board& board )
 {

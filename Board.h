@@ -112,6 +112,12 @@ public:
     const SQ& get_sq( ofst_t k ) const {
         return sqs[ k ];
     }
+    bool check( ofst_t k, color_t color ) const {
+        return sqs[ k ].check( color );
+    }
+    //
+    string getfen() const;
+    //
     friend ostream& operator <<( ostream& _ , const Board& board );
 };
 ////////////////////////////////////////////////////////////////

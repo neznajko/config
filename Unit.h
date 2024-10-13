@@ -29,8 +29,10 @@ public:
     char ch() const {
         return fig->ch(); 
     }
+    ofst_t get_ofst() const;
     void tcpdump() const;
-    friend ostream& operator <<( ostream& _ , const Unit* unit )
+    void getmoves( vector <Move> & moves ) const;
+    friend ostream& operator <<( ostream& _, const Unit* unit )
     {   
         return _ << unit->ch();
     }

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////
 # include "ComsatStation.h"
+# include <regex>
 ////////////////////////////////////////////////////////////////
 using namespace std;
 ////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ void ComsatStation::Launch()
     }
 }
 ////////////////////////////////////////////////////////////////
-void ComsatStation::exec( const vector <string> & args )
+void ComsatStation::exec( const vector <string> &args )
 {
     string com = args[ 0 ];
     if( com == "insert" ){
@@ -38,7 +39,13 @@ void ComsatStation::exec( const vector <string> & args )
         select( args[ 1 ]);
     } else if( com == "undo" ){
         undo();
-    } else {
+    } else if( com == "getfen" ){
+        getfen();
+    } else if( com == "perft" ){
+        int depth = stoi( args[ 1 ]);
+        perft( depth );
+    } 
+    else {
         if(! McMove( com )){
             cout << com << ": unknown command\n";
         }
@@ -58,8 +65,6 @@ void ComsatStation::flip_the_switch()
     node->flip_the_switch();
 }
 ////////////////////////////////////////////////////////////////
-# include <regex>
-////////////////////////////////////////////////////////////////
 // e4e5
 bool ComsatStation::McMove( const string& s )
 {
@@ -70,19 +75,27 @@ bool ComsatStation::McMove( const string& s )
     if(! regex_match( s, move_match, MOVE_REGEX )){
         return false;
     }
-    ofst_t src = Board::get_ofst( move_match[ 1 ].str());
-    ofst_t dst = Board::get_ofst( move_match[ 2 ].str());
-    Move mv{ MOVE, src, dst };
-    stk.push_back( mv );
+    const string src_sqr = move_match[ 1 ].str();
+    const string dst_sqr = move_match[ 2 ].str();
+    ofst_t src = Board::get_ofst( src_sqr );
+    ofst_t dst = Board::get_ofst( dst_sqr );
+    const Unit* u = node->get_unit( dst_sqr ); 
+    move_t type = u->not_nil() ? CRON : MOVE;
+    Move mv{ type, src, dst };
+    movestk.push_back( mv );
     node->make_move( mv );
     return true;
 }
 ////////////////////////////////////////////////////////////////
-void ComsatStation::select( const string& sqr ) // dj selecta
+void ComsatStation::select( const string& sqr ) //    dj selecta
 {
     const Unit* u = node->get_unit( sqr );
     if( u->not_nil()){
         u->tcpdump();
+        // get the move tracks( dj KapaHuko7oB remix )
+        vector <Move> moves;
+        u->getmoves( moves );
+        cout << "Moves: " << moves << endl;
     } else {
         cout << &( node->get_sq( sqr )) << endl;
     }
@@ -90,13 +103,28 @@ void ComsatStation::select( const string& sqr ) // dj selecta
 ////////////////////////////////////////////////////////////////
 void ComsatStation::undo()
 {
-    if( stk.empty()){
+    if( movestk.empty() ){
         cout << "pure virtual function call" << endl;
         return;
     }
-    node->undo_move( stk.back());
-    stk.pop_back();
+    node->undo_move( movestk.back() );
+    movestk.pop_back();
 }
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+void ComsatStation::getfen() const {
+    cout << node->getfen() << endl;
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+void ComsatStation::perft( int depth ) {
+    auto n = node->perft( depth );
+    cout << "Perft: " << n << endl;
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

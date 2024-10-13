@@ -5,6 +5,8 @@
 
 .claudiaideconfig
 g++/
+*.swp
+*.exe
 
 # User-specific files
 *.rsuser
