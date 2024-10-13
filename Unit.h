@@ -51,7 +51,7 @@ public:
 //     possibilities, that  is  the  number of functions will be 
 // m^n. In the  second case there should be no two elements from 
 // A  that  maps  to same  element  from B,  so for a1 we have m 
-// choices  form  a2  m - 1 .. for  an:  m - (n - 1), zo  totaly 
+// choices  for   a2  m - 1 .. for  an:  m - (n - 1), zo  totaly 
 // m(m - 1)..(m - n + 1) one to one functions
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
