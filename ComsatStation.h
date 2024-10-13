@@ -32,8 +32,24 @@ public:
 // velocities of; one of, the fragments and v, if the nucleus at
 // rest decays into fragments with velocities u < v?
 //
-//
-//
-//
-//
+// Let'","s this is the direction of v <----, in a system moving 
+// alongside with the nucleus, we'll have this picture:
+//    . .    , all directions are possible, and we have a sphere
+//  .  u /.  with radius u,; to view the picture in the original
+// .    /  . non moving systm,:;'", we have to add the v to each
+// .   `   . point of the sphere,: that is basically translating
+//  .     .  it at distance v:
+//    . .
+//    . .       v     . .    , not very good picture, but OK, so                     
+//  .    ```````````````/ .  the,,, maximum: angle: will 'be "at          
+// .       .       .   / u . direction ,OB !perpendicular to the
+// .   `C  .       .   `O  . translated sphere's "center 'radius   
+//  .     .         .     .  CB, so we can easily |conclude that   
+//    . . B           . .    the maximum angle α satisfies thus:          
+//                                                    sinα = u|v                        
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //
