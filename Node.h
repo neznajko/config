@@ -57,7 +57,7 @@ public:
     }
     //
     void getmoves( vector <Move> &moves );
-    i64_t perft( int depth );
+    u64_t perft( int depth );
     string getfen() const;
     //
     friend ostream& operator <<( ostream& _ , const Node* node );

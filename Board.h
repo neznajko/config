@@ -42,6 +42,7 @@ public:
     static constexpr int GUARD_HEIGHT{ 2 };
     static constexpr int WIDTH{  CHESSW + 2 * GUARD_WIDTH  };
     static constexpr int HEIGHT{ CHESSH + 2 * GUARD_HEIGHT };
+    static constexpr int SIZ{ WIDTH * HEIGHT };
     static constexpr int PROMOTION_RANK[]{ 9, 2 }; // B, W
     //
     static ofst_t get_ofst( int rank, int file )

@@ -80,7 +80,7 @@ vector <Move> consmov() {
 // < Node::undo_move
 // + Node::check
 // : Node::getmoves
-i64_t Node::perft( int depth ){
+u64_t Node::perft( int depth ){
     if( depth == 0 ) return 1;
     auto moves = consmov();
     getmoves( moves );
