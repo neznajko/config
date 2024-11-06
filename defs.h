@@ -17,7 +17,7 @@ typedef int ofst_t;
 typedef int color_t;
 typedef int fig_t;
 typedef int move_t;
-typedef uint64_t u64_t;
+typedef uint64_t u64;
 ////////////////////////////////////////////////////////////////
 constexpr move_t MOVE{   0           };
 constexpr move_t CRON{        1 << 0 };

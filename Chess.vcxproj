@@ -131,6 +131,7 @@
     <ClCompile Include="Army.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Brush.cpp" />
+    <ClCompile Include="Cache.cpp" />
     <ClCompile Include="Castle.cpp" />
     <ClCompile Include="Chess.cpp" />
     <ClCompile Include="ComsatStation.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Move.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Search.cpp" />
     <ClCompile Include="SQ.cpp" />
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
@@ -145,6 +147,7 @@
     <ClInclude Include="Army.h" />
     <ClInclude Include="Board.h" />
     <ClInclude Include="Brush.h" />
+    <ClInclude Include="Cache.h" />
     <ClInclude Include="Castle.h" />
     <ClInclude Include="ComsatStation.h" />
     <ClInclude Include="defs.h" />
@@ -152,6 +155,7 @@
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Search.h" />
     <ClInclude Include="SQ.h" />
     <ClInclude Include="Unit.h" />
   </ItemGroup>

@@ -6,7 +6,7 @@
 # include <cctype>
 # include <unordered_set>
 # include <string>
-# include <utility> // move
+# include <utility> // mov
 ////////////////////////////////////////////////////////////////
 class SQ;
 class Node;
@@ -52,6 +52,9 @@ public://///////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////
     char ch() const {
         return get_char( type, color );
+    }
+    fig_t get_type() const {
+        return type;
     }
     color_t get_color() const {
         return color;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////
-# include "Node.h"
+# include "Search.h"
 # include "Castle.h"
 # include <sstream>
 ////////////////////////////////////////////////////////////////
@@ -57,9 +57,11 @@ string Node::getfen() const {
     return ss.str();
 }
 ////////////////////////////////////////////////////////////////
+// + Node::movcons
 // : Unit::getmoves
-void Node::getmoves( vector <Move> &moves )
+vector <Move> Node::getmoves()
 {
+    auto moves = movcons();
     Unit* king = army[ the_switch ].king;
     Unit* unit = king->next;
     while( true ) {
@@ -67,41 +69,31 @@ void Node::getmoves( vector <Move> &moves )
         if( unit == king ) break;
         unit = unit->next;
     }
-}
-////////////////////////////////////////////////////////////////
-vector <Move> consmov() {
-    static constexpr int MAXSIZ = 128;
-    vector <Move> moves;
-    moves.reserve( MAXSIZ );
     return moves;
 }
 ////////////////////////////////////////////////////////////////
-// > Node::make_move
-// < Node::undo_move
-// + Node::check
-// : Node::getmoves
-u64_t Node::perft( int depth ){
-    if( depth == 0 ) return 1;
-    auto moves = consmov();
-    getmoves( moves );
-    int n = 0;
-    for( const auto& mov: moves ){
-        make_move( mov );
-        if( !check() ){
-            n += perft( depth - 1 );
-        }
-        undo_move( mov );
-    }
-    return n;
+vector <Move> Node::movcons( const int maxsiz ){
+    vector <Move> moves;
+    moves.reserve( maxsiz );
+    return moves;
+}
+////////////////////////////////////////////////////////////////
+u64 Node::perft( int depth ){
+    return Search( this ).perft( depth ); 
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& _ , const Node* node )
 {
+    // backup
+    std::ios_base::fmtflags original_flags = _.flags();
     _ << node->army[ BLACK ] << endl;
     _ << node->army[ WHITE ] << endl;
+    _ << "hash: " << hex << node->hash << endl;
     _ << node->board;
     _ << Army::NAME[ node->the_switch ] << " to move";
+    // reestablish
+    _.flags( original_flags );
     return _ ;
 }
 ////////////////////////////////////////////////////////////////

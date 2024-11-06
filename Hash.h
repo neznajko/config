@@ -16,20 +16,20 @@
 class Hash {
 private:
     static std::random_device                               dev;
-    static std::uniform_int_distribution <u64_t>           dist;
+    static std::uniform_int_distribution <u64>             dist;
     static std::mt19937_64                                  gen;
-    static vector <vector <u64_t>>                       _board;
-    static u64_t                                    _the_switch;
+    static vector <vector <u64>>                         _board;
+    static u64                                      _the_switch;
     //
-    static u64_t genu64() {
+    static u64 genu64() {
         return dist( gen );
     }
 public:
-    static void initialize( u64_t seed=dev());
-    static u64_t the_switch() {
+    static void initialize( u64 seed=dev());
+    static u64 the_switch() {
         return _the_switch;
     }
-    static u64_t board( int i, int j ){
+    static u64 board( ofst_t i, fig_t j ){
         return _board[ i ][ j ];
     }
 };

@@ -4,17 +4,21 @@
 # include "Brush.h"
 # include "Army.h"
 # include "Move.h"
+# include "Hash.h"
 ////////////////////////////////////////////////////////////////
 class Node {
 private:
-    Board board;
+    Board board{ this };
     Army army[ RED ];
     bool the_switch = BLACK;
+    u64 hash = 0;
 public:
     // Split space separated FEN string into fields, , ,
     static vector <string> split( const string& fen );
     // Construct a Node from Forsyth-Edwards Notation- -
     static Node* cons( const string& fen );
+    //
+    static vector <Move> movcons( const int maxsiz = 128 );
     Node(): 
     army {
         Army( new Unit( KING, BLACK, this )),
@@ -23,6 +27,7 @@ public:
     {}
     void flip_the_switch() {
         the_switch = !the_switch;
+        xoring( Hash::the_switch());
     }
     void draw_board() const {
         Brush::draw( board );
@@ -55,9 +60,15 @@ public:
         ofst_t k = army[ !the_switch ].king->get_ofst();
         return board.check( k, the_switch );
     }
+    auto gethash() const {
+        return hash;
+    }
+    void xoring( u64 value ){
+        hash ^= value;
+    }
     //
-    void getmoves( vector <Move> &moves );
-    u64_t perft( int depth );
+    vector <Move> getmoves();
+    u64 perft( int depth );
     string getfen() const;
     //
     friend ostream& operator <<( ostream& _ , const Node* node );
