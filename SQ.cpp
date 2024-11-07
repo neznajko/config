@@ -2,7 +2,8 @@
 # include "Node.h"
 ////////////////////////////////////////////////////////////////
 void SQ::hashing( Figure* fig ){ //          The Zobrist Hashing
-    node->xoring( Hash::board( ofst, fig->get_type()));
+    node->xoring
+        ( Hash::sq( ofst, fig->get_type(), fig->get_color()));
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -31,6 +32,24 @@ ostream& operator <<( ostream& _ , const SQ* sq ){
 //
 //         k = 1
 // Hint: Consider choosing a committee of size n from two groups
-// of size n each, where only one of the two groups has people e
-// ligible to become the chair of the committee
+// of size n each, where only one of the two groups has people
+// eligible to become the chair of the committee
+////////////////////////////////////////////////////////////////
+// each term in the sum can be represented as
+//   ( n )( n     )
+// k ( k )( n - k ), and be interpreted as:
+//                                                        ( n )
+// first we pick k people from the group of chairmen, for ( k )
+// then we pick one of them as chairman, the k factor, next we
+// pick the rest of the committee from the other non chairmen
+// group for ( n     )
+//           ( n - k ), the sum over k will give us the total
+// number of committees.
+// But instead of first picking a committee and then a chairman,
+// we can first pick a chairman, from n people, and then the
+// rest of the committee, for ( 2n - 1 )
+//                            (  n - 1 )
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

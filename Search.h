@@ -10,12 +10,13 @@ class Search {
 private:
     Node* node;
     PerftCache cache;
+    Benchmark bm;
+    u64 perft_( int depth );
 public:
     Search( Node* node )
     : node( node )
     {}
     u64 perft( int depth );
-    u64 perft_( int depth );
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

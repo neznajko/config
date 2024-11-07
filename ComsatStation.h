@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////
 class ComsatStation {
 private:
+    static const string DEFAULTFEN;
     Node* node;
     vector <Move> movestk;
     //
@@ -18,6 +19,9 @@ private:
     void getfen() const;
     void perft( int depth );
 public:
+    ComsatStation()
+    : node( Node::cons( DEFAULTFEN )) 
+    {}
     ComsatStation( Node* node )
     : node( node )
     {}
@@ -40,13 +44,13 @@ public:
 // .   `   . point of the sphere,: that is basically translating
 //  .     .  it at distance v:
 //    . .
-//    . .       v     . .    , not very good picture, but OK, so                     
-//  .    ```````````````/ .  the,,, maximum: angle: will 'be "at          
+//    . .       v     . .    , not very good picture, but OK, so
+//  .    ```````````````/ .  the,,, maximum: angle: will 'be "at
 // .       .       .   / u . direction ,OB !perpendicular to the
-// .   `C  .       .   `O  . translated sphere's "center 'radius   
-//  .     .         .     .  CB, so we can easily |conclude that   
-//    . . B           . .    the maximum angle α satisfies thus:          
-//                                                    sinα = u|v                        
+// .   `C  .       .   `O  . translated sphere's "center 'radius
+//  .     .         .     .  CB, so we can easily |conclude that
+//    . . B           . .    the maximum angle α satisfies thus:
+//                                                    sinα = u|v
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

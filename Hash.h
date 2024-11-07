@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-# include "defs.h"
+# include "Board.h"
 # include <random>
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ private:
     static std::random_device                               dev;
     static std::uniform_int_distribution <u64>             dist;
     static std::mt19937_64                                  gen;
-    static vector <vector <u64>>                         _board;
+    static u64                _sq[ Board::SIZ ][ EMPTY ][ RED ];
     static u64                                      _the_switch;
     //
     static u64 genu64() {
@@ -29,8 +29,8 @@ public:
     static u64 the_switch() {
         return _the_switch;
     }
-    static u64 board( ofst_t i, fig_t j ){
-        return _board[ i ][ j ];
+    static u64 sq( ofst_t i, fig_t j, color_t k ){
+        return _sq[ i ][ j ][ k ];
     }
 };
 ////////////////////////////////////////////////////////////////

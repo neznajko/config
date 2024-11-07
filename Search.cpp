@@ -6,10 +6,11 @@
 // + Node::check
 // < Node::undo_move
 ////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 u64 Search::perft_( int depth ){
     if( depth == 0 ) return 1;
     auto m = cache.getvalue( node->gethash(), depth );
-    if( m ) return m;
+    if( m > 0 ) return m;
     auto moves = node->getmoves();
     u64 n = 0;
     for( const auto& mov: moves ){
@@ -27,7 +28,10 @@ u64 Search::perft_( int depth ){
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 u64 Search::perft( int depth ){
+    bm.start();
     auto n = perft_( depth );
+    bm.stop();
+    bm.log();
     return n;
 }
 ////////////////////////////////////////////////////////////////
