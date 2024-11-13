@@ -17,7 +17,7 @@ public:
     static vector <string> split( const string& fen );
     // Construct a Node from Forsyth-Edwards Notation- -
     static Node* cons( const string& fen );
-    //
+    // return maxsiz capacity vector
     static vector <Move> movcons( const int maxsiz = 128 );
     Node(): 
     army {
@@ -25,6 +25,9 @@ public:
         Army( new Unit( KING, WHITE, this )),
     }
     {}
+    void xoring( u64 value ){
+        hash ^= value;
+    }
     void flip_the_switch() {
         the_switch = !the_switch;
         xoring( Hash::the_switch());
@@ -38,7 +41,6 @@ public:
     const SQ& get_sq( const string& sqr ){
         return board.get_sq( Board::get_ofst( sqr ));
     }
-    Unit* insert_coin( char c, int i, int j );
     void make_move( const Move& mv ){
         Unit* unit = board.move_unit( mv.src, mv.dst );
         if( unit->not_nil()){ // recapture
@@ -63,11 +65,10 @@ public:
     auto gethash() const {
         return hash;
     }
-    void xoring( u64 value ){
-        hash ^= value;
-    }
     //
+    Unit* insert_coin( char c, int i, int j );
     vector <Move> getmoves();
+    u64 perft_( int depth );
     u64 perft( int depth );
     string getfen() const;
     //

@@ -56,8 +56,19 @@ Hash.h      \
 Board.h      \
 defs.h
 Move.obj: Move.cpp Move.h Board.h SQ.h Unit.h Figure.h defs.h
-Node.obj: Node.cpp Node.h Castle.h Brush.h Board.h SQ.h Unit.h \
-          Figure.h Army.h Move.h Hash.h defs.h
+################################################################
+Node.obj: \
+Node.cpp   \
+Node.h      \
+Castle.h     \
+Brush.h       \
+Board.h        \
+SQ.h Unit.h     \
+Figure.h         \
+Army.h            \
+Move.h             \
+Hash.h              \
+defs.h
 ################################################################
 SQ.obj: SQ.cpp \
         SQ.h    \

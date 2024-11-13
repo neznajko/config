@@ -41,6 +41,12 @@ Node* Node::cons( const string& fen ){
     return node;
 }
 ////////////////////////////////////////////////////////////////
+vector <Move> Node::movcons( const int maxsiz ){
+    vector <Move> moves;
+    moves.reserve( maxsiz );
+    return moves;
+}
+////////////////////////////////////////////////////////////////
 Unit* Node::insert_coin( char c, int i, int j ){
     color_t color{ Castle::color( c )};
     fig_t fig{ Figure::get_type( c )};
@@ -72,28 +78,21 @@ vector <Move> Node::getmoves()
     return moves;
 }
 ////////////////////////////////////////////////////////////////
-vector <Move> Node::movcons( const int maxsiz ){
-    vector <Move> moves;
-    moves.reserve( maxsiz );
-    return moves;
+u64 Node::perft_( int depth ){
+    return Search( this ).perft_( depth ); 
 }
 ////////////////////////////////////////////////////////////////
 u64 Node::perft( int depth ){
     return Search( this ).perft( depth ); 
 }
 ////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& _ , const Node* node )
 {
-    // backup
-    std::ios_base::fmtflags original_flags = _.flags();
     _ << node->army[ BLACK ] << endl;
     _ << node->army[ WHITE ] << endl;
-    _ << "hash: " << hex << node->hash << endl;
+    _ << "hash: " << hex << node->hash << dec << endl;
     _ << node->board;
     _ << Army::NAME[ node->the_switch ] << " to move";
-    // reestablish
-    _.flags( original_flags );
     return _ ;
 }
 ////////////////////////////////////////////////////////////////

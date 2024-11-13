@@ -5,12 +5,47 @@
 # include "ComsatStation.h"
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+# include <thread>
+# include <numeric>
+using std::thread;
 ////////////////////////////////////////////////////////////////
+void f( int depth ){
+    const string fen = "7K/8/8/8/8/8/8/k7 b - - 0 1";
+    Node* node = Node::cons( fen );
+    // get vector of moves
+    auto movs = node->getmoves();
+    // number of moves
+    const int nfmovs = movs.size();
+    // thread per mov vector
+    vector <thread> threads( nfmovs );
+    // node per thread vector
+    vector <Node*> copy( nfmovs );
+    // ok
+    vector <u64> result;
+    for( int j = 0; j < nfmovs; ++j ){
+        // Copy Ninja Kakashi Sensee
+        copy[j] = Node::cons( fen );
+        // make the mov
+        copy[j]->make_move( movs[j] );
+        // staat
+        threads[j] = thread([ copy, j, depth, &result ]() {
+            u64 n = copy[j]->perft_( depth - 1 );
+            result.push_back( n );
+        });
+    }
+    // ok
+    for( auto& td: threads ){
+        td.join();
+    }
+    u64 n = std::accumulate( result.begin(), result.end(), 0LLU );
+    cout << n << endl;
+}
 ////////////////////////////////////////////////////////////////
 int main()
 {
     Hash::initialize();
     if( 0 ){
+        f( 7 );
     } else {
         ComsatStation().Launch();
     }

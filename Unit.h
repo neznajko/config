@@ -18,6 +18,9 @@ public:
     Unit( fig_t type, color_t color, Node* node ): 
     fig( Figure::factory( type, color, node ))
     {}
+    ~Unit() {
+        delete fig;
+    }
     color_t get_color() const
     {
         return fig->get_color();

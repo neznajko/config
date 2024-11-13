@@ -9,69 +9,32 @@
 ////////////////////////////////////////////////////////////////
 using std::unordered_map;
 ////////////////////////////////////////////////////////////////
-template <typename Key,typename Value>
-class Cache {
-public:
-    bool haskey( const Key& key ){
-        return umap.count( key ) > 0;
-    }
-protected:
-    unordered_map <Key,Value> umap{}; // tha'ts
-    virtual Value defaultvalue() const {
-        return {};
-    }
-    void defaultcons( const Key& key ){
-        if( haskey( key ) == false ){
-            umap[ key ] = defaultvalue();
-        }
-    }
-};
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-class PerftCache: public Cache <u64,vector <u64>> {
-    static const int MAXDEPTH = 8;
-protected:
-    vector <u64> defaultvalue() const override {
-        return vector <u64> ( MAXDEPTH );
-    }
-public:
-    auto getvalue( u64 hash, int depth ){
-        defaultcons( hash );
-        return umap[ hash ][ depth ];
-    }
-    void inc( u64 hash, int depth ){
-        defaultcons( hash );
-        ++umap[ hash ][ depth ];
-    }
-    void setvalue( u64 n, u64 hash, int depth ){
-        umap[ hash ][ depth ] = n;
-    }
-    friend ostream& 
-    operator <<( ostream& _, const PerftCache& cache );
-};
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 # include <array>
 ////////////////////////////////////////////////////////////////
+# include <mutex>
+# include <shared_mutex>
 ////////////////////////////////////////////////////////////////
 using std::array;
 ////////////////////////////////////////////////////////////////
-class PerftCache_ {
+class PerftCache {
     typedef u64            Key;
     typedef array <u64, 8> Value;
 public:
-    auto get( Key hash, int depth ){
+    static u64  get( Key hash, int depth ){
+        std::lock_guard<std::shared_mutex> lock(mutex_);
         return umap[ hash ][ depth ];
     }
-    void set( Key hash, int depth, u64 n ){
+    static void set( Key hash, int depth, u64 n ){
+        std::lock_guard<std::shared_mutex> lock(mutex_);
         umap[ hash ][ depth ] = n;
     }
 private:
-    unordered_map <Key, Value> umap;
+    static unordered_map <Key, Value> umap;
+    static std::shared_mutex mutex_;
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -86,3 +49,7 @@ private:
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// N6K/8/5N2/n7/8/6n1/8/k7 b - - 0 1
+// > perft 7
+// 8.34398 sec
+// Perft: 80710893
