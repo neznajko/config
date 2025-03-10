@@ -5,52 +5,46 @@
 # include "ComsatStation.h"
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-# include <thread>
-# include <numeric>
-using std::thread;
 ////////////////////////////////////////////////////////////////
-void f( int depth ){
-    const string fen = "7K/8/8/8/8/8/8/k7 b - - 0 1";
-    Node* node = Node::cons( fen );
-    // get vector of moves
-    auto movs = node->getmoves();
-    // number of moves
-    const int nfmovs = movs.size();
-    // thread per mov vector
-    vector <thread> threads( nfmovs );
-    // node per thread vector
-    vector <Node*> copy( nfmovs );
-    // ok
-    vector <u64> result;
-    for( int j = 0; j < nfmovs; ++j ){
-        // Copy Ninja Kakashi Sensee
-        copy[j] = Node::cons( fen );
-        // make the mov
-        copy[j]->make_move( movs[j] );
-        // staat
-        threads[j] = thread([ copy, j, depth, &result ]() {
-            u64 n = copy[j]->perft_( depth - 1 );
-            result.push_back( n );
-        });
-    }
-    // ok
-    for( auto& td: threads ){
-        td.join();
-    }
-    u64 n = std::accumulate( result.begin(), result.end(), 0LLU );
-    cout << n << endl;
-}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 int main()
 {
     Hash::initialize();
     if( 0 ){
-        f( 7 );
     } else {
         ComsatStation().Launch();
     }
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// 2.1.18. A body l-o-c-a-t-e-d o=n a horizontal plane is pulled 
+// horizontally by a thread. Draw a graph of t=h=e dependence of 
+// the friction force acting on the body from t-h-e plane on the 
+// t=e=n=s=i=o=n force of the t=h=r=e=ad. Initially, the body is 
+// motionless. The mass of the body is 10 kg, the coefficient of 
+// friction is 0.51.
 ////////////////////////////////////////////////////////////////
+//                              
+//               A N = mg     Here F is the force applied to the
+//               |            mbody, f is the fri=c=t=i=on force,
+//             __|__          and N is the reaction of the plane
+//     f <----|  m  |-----> F
+// =============================================================
+// So if we start with F = 0, and gradually increase the force F
+// the m-b-o-d-y will stay motionless until F becomes equal to a 
+// critical v=a=l=u=e equal to _N, where _ is the coefficient of
+// friction, after that the mbody starts moving. When motionless
+// the force of friction equalize F so we'll get thus:
+//
+// A
+// | f = _N = _mg = 0.51*10[kg]*10[m/s^2] = 51[N]
+// |, , , , ,* * * * *    
+// |       * `  
+// |     *   `  
+// |   *     `  
+// | *       `      F
+// +---------`-------->
+//           _N   
 ////////////////////////////////////////////////////////////////

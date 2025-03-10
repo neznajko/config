@@ -2,6 +2,7 @@
 # pragma once
 ////////////////////////////////////////////////////////////////
 # include "Unit.h"
+# include "dll.h"
 ////////////////////////////////////////////////////////////////
 class Army {
 public:
@@ -12,11 +13,11 @@ public:
     Army( Unit* king )
     : king( king )
     {
-        king->prev = king->next = king;
+        dll::ahead( king );
     }
     ~Army(){
         while( king->next != king ){
-            unlink_and_delete( king->next );
+            dll::purge( king->next );
         }
         delete king;
         for( Unit* p: bench ){
@@ -33,16 +34,7 @@ public:
     // n        q |        n        p        q
     //   <prev<   |          <prev<
     ////////////////////////////////////////////////////////////
-    void unlink( Unit* p ){
-        p->prev->next = p->next;
-        p->next->prev = p->prev;
-        bench.push_back( p );
-    }
-    void unlink_and_delete( Unit* p ){
-        p->prev->next = p->next;
-        p->next->prev = p->prev;
-        delete p;
-    }
+    void unlink( Unit* p );
     Unit* dance() {
         Unit* p{ bench.back() };
         bench.pop_back();

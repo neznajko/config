@@ -135,6 +135,7 @@
     <ClCompile Include="Castle.cpp" />
     <ClCompile Include="Chess.cpp" />
     <ClCompile Include="ComsatStation.cpp" />
+    <ClCompile Include="dll.cpp" />
     <ClCompile Include="Figure.cpp" />
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="Move.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="Figure.h" />
     <ClInclude Include="Hash.h" />
+    <ClInclude Include="dll.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Search.h" />

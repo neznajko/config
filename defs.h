@@ -13,7 +13,7 @@ enum { BLACK, WHITE, RED, BLUE };
 enum { QSIDE, KSIDE, CENTER };
 enum { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN, EMPTY, GUARD };
 ////////////////////////////////////////////////////////////////
-typedef int ofst_t;
+typedef int8_t ofst_t;
 typedef int color_t;
 typedef int fig_t;
 typedef int move_t;
@@ -64,7 +64,7 @@ using namespace std::chrono;
 class Benchmark {
     time_point <steady_clock> t_start;
     time_point <steady_clock> t_stop;
-    auto now() {
+    static auto now() {
         return steady_clock::now();
     }
 public:
@@ -83,4 +83,3 @@ public:
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-

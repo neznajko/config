@@ -23,14 +23,21 @@ Move.cpp            \
 Node.cpp             \
 SQ.cpp                \
 Search.cpp             \
-Unit.cpp
+Unit.cpp                \
+dll.cpp
 OBJECTS = $(SOURCES:.cpp=.obj)
 
 # Rule to build the executable
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) /Fe:$(TARGET)
-
-Army.obj: Army.cpp Army.h Unit.h Figure.h defs.h
+################################################################
+Army.obj: \
+Army.cpp   \
+Army.h      \
+Unit.h       \
+Figure.h      \
+defs.h         \
+dll.h
 Board.obj: Board.cpp Castle.h Brush.h Board.h SQ.h \
            Unit.h Figure.h defs.h
 Brush.obj: Brush.cpp Castle.h Brush.h Board.h SQ.h \
@@ -83,7 +90,21 @@ Search.obj: Search.cpp \
             Node.h       \
             Cache.h       \
             defs.h
-Unit.obj: Unit.cpp Unit.h Board.h SQ.h Unit.h Figure.h defs.h
+################################################################
+Unit.obj: \
+Unit.cpp   \
+Unit.h      \
+Board.h      \
+SQ.h          \
+Unit.h         \
+Figure.h        \
+defs.h
+################################################################
+dll.obj: \
+dll.cpp   \
+dll.h      \
+defs.h      \
+Board.h
 
 # Rule to build each .obj file from its corresponding .cpp file
 .cpp.obj:

@@ -1,5 +1,9 @@
 ////////////////////////////////////////////////////////////////
 # include "Search.h"
+# include <thread>
+# include <numeric>
+using std::thread;
+using std::accumulate;
 ////////////////////////////////////////////////////////////////
 // : Node::getmoves
 // > Node::make_move
@@ -25,13 +29,10 @@ u64 Search::perft_( int depth ){
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-# include <thread>
-# include <numeric>
-using std::thread;
-using std::accumulate;
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// there is bug here initial moves are not checked for checks
 ////////////////////////////////////////////////////////////////
 u64 Search::perft( int depth ){
     const string fen = node->getfen();
@@ -44,7 +45,7 @@ u64 Search::perft( int depth ){
     // node per thread vector
     vector <Node*> copy( nfmovs );
     // ok
-    vector <u64> result;
+    vector <u64> result( nfmovs );
     bm.start();
     for( int j = 0; j < nfmovs; ++j ){
         // Copy Ninja Kakashi Sensee
@@ -54,7 +55,7 @@ u64 Search::perft( int depth ){
         // staat
         threads[j] = thread([ copy, j, depth, &result ]() {
             u64 n = copy[j]->perft_( depth - 1 );
-            result.push_back( n );
+            result[ j ] = n;
         });
     }
     // ok

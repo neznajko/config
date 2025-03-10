@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////
 # pragma once
 ////////////////////////////////////////////////////////////////
-# include "defs.h"
+# include "dll.h"
 # include <map>
 # include <cctype>
 # include <unordered_set>
@@ -18,14 +18,23 @@ using std::unordered_set;
 using std::string;
 ////////////////////////////////////////////////////////////////
 class Figure {
+public:
+    struct Hash {
+        size_t operator()( Figure* const& fig ) const noexcept
+        {
+            return ( size_t ) fig;
+        }
+    };
 protected:
     const fig_t type; //                        KING, KNIGHT, ..
     const color_t color; 
     SQ* sq{};
     Node* node;
     Board& board;
-    unordered_set <ofst_t> ofsts; //                      tha'ts
-    vector <unordered_set <ofst_t>> cache;
+    //unordered_set <ofst_t> ofsts; //                      tha'ts
+    //vector <unordered_set <ofst_t>> cache;
+    dll::Setoff _ofsts;
+    vector <dll::Setoff> _cache;
     Figure( fig_t type, color_t color, Node* node );////////////
 public://///////////////////////////////////////////////////////
     static fig_t get_type( char c )
@@ -68,7 +77,7 @@ public://///////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     ofst_t get_ofst() const;
     string coord() const;
-    void getmoves( vector <Move> & moves ) const;
+    void getmoves( vector <Move> &moves ) const;
     /////////////////////////////////////////////////////////////
     virtual ~Figure(){}
     virtual void subs(){};
@@ -87,7 +96,7 @@ private:
     static constexpr int NFD{ 8 }; // number of directions
     static constexpr int NFS{ 2 }; // number of shortranges
     static const vector <ofst_t> DR[ NFS ];
-    const vector <ofst_t> & dr;
+    const vector <ofst_t> &dr;
 public:
     Shortrange( fig_t type, color_t color, Node* node ): 
     Figure( type, color, node ),

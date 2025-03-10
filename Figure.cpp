@@ -34,17 +34,30 @@ string Figure::coord() const {
 ///////////////////////////////////////////////////////////////z
 void Figure::getmoves( vector <Move> &moves ) const {
     ofst_t src = get_ofst();
+    //
+    ofst_t dst = _ofsts.fyorst();
+    while( dst ){
+        color_t kolor = board.get_color( dst );
+        if( color == kolor ) goto lab;
+        move_t type = kolor == RED ? MOVE : CRON;
+        moves.push_back({ type, src, dst });
+    lab:dst = _ofsts.next( dst );
+    }
+    /*
     for( ofst_t dst: ofsts ){
         color_t kolor = board.get_color( dst );
         if( color == kolor ) continue;
         move_t type = kolor == RED ? MOVE : CRON;
         moves.push_back({ type, src, dst });
-    } 
+    }
+    */
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& _ , const Figure* fig ){
+    return _ << fig->_ofsts << "\n     " << fig->_cache;
+    /*
     _ << "{";
     if( fig->ofsts.size() > 0 ){
         _ << " ";
@@ -62,6 +75,7 @@ ostream& operator <<( ostream& _ , const Figure* fig ){
         _ << ')';
     }
     return _;
+    */
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -69,27 +83,52 @@ ostream& operator <<( ostream& _ , const Figure* fig ){
 ////////////////////////////////////////////////////////////////
 void Figure::unsub()
 {
+    ofst_t k = _ofsts.fyorst();
+    while( k ){
+        board.Unregister( k, this );
+        k = _ofsts.next( k );
+    }
+    _cache.push_back( _ofsts );
+    _ofsts.reset();
+    /*
     for( ofst_t k: ofsts ){
         board.Unregister( k, this );
     }
     cache.push_back( std::move( ofsts ));
     ofsts.clear(); // reset
+    */
 }
 ////////////////////////////////////////////////////////////////
 void Figure::subs_reestablish()
 {
+    _ofsts = _cache.back();
+    _cache.pop_back();
+    ofst_t k = _ofsts.fyorst();
+    while( k ){
+        board.Register( k, this );
+        k = _ofsts.next( k );
+    }
+    /*
     ofsts = std::move( cache.back());
     cache.pop_back();
     for( ofst_t k: ofsts ){
         board.Register( k, this );
     }
+    */
 }
 ////////////////////////////////////////////////////////////////
 void Figure::unsub_reestablish()
 {
+    ofst_t k = _ofsts.fyorst();
+    while( k ){
+        board.Unregister( k, this );
+        k = _ofsts.next( k );
+    }
+    /*
     for( ofst_t k: ofsts ){
         board.Unregister( k, this );
     }
+    */
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -114,13 +153,15 @@ const vector <ofst_t> Shortrange::DR[] = {
     }
 };
 ////////////////////////////////////////////////////////////////
-void Shortrange::subs() 
+// No need to register same color squares
+void Shortrange::subs()
 {
     ofst_t orig = get_ofst();
     for( ofst_t k: dr ){
         k += orig;
         if( board.get_color( k ) != BLUE ){
-            ofsts.insert( k );
+            //ofsts.insert( k );
+            _ofsts.insert( k );
             board.Register( k, this );
         }
     }
