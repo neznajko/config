@@ -24,7 +24,8 @@ Node.cpp             \
 SQ.cpp                \
 Search.cpp             \
 Unit.cpp                \
-dll.cpp
+dll.cpp                  \
+Command.cpp
 OBJECTS = $(SOURCES:.cpp=.obj)
 
 # Rule to build the executable
@@ -51,9 +52,23 @@ Castle.obj: Castle.h defs.h
 Chess.obj: Chess.cpp ComsatStation.h Node.h Castle.h \
            Brush.h Board.h SQ.h Unit.h Figure.h Army.h \
            Move.h Hash.h defs.h
-ComsatStation.obj: ComsatStation.cpp ComsatStation.h Node.h \
-           Castle.h Brush.h Board.h SQ.h Unit.h Figure.h \
-           Army.h Move.h Hash.h defs.h
+################################################################
+ComsatStation.obj: \
+ComsatStation.cpp   \
+ComsatStation.h      \
+Node.h                \
+Castle.h               \
+Brush.h                 \
+Board.h                  \
+SQ.h                      \
+Unit.h                     \
+Figure.h                    \
+Army.h                       \
+Move.h                        \
+Hash.h                         \
+Command.h                       \
+defs.h
+################################################################
 Figure.obj: Figure.cpp Node.h Castle.h Brush.h Board.h SQ.h \
 	        Unit.h Figure.h Army.h Move.h Hash.h defs.h
 ################################################################
@@ -105,6 +120,10 @@ dll.cpp   \
 dll.h      \
 defs.h      \
 Board.h
+################################################################
+Command.obj: \
+Command.cpp   \
+Command.h      
 
 # Rule to build each .obj file from its corresponding .cpp file
 .cpp.obj:

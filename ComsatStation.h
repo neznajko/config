@@ -1,31 +1,32 @@
 ////////////////////////////////////////////////////////////////
 # pragma once
 ////////////////////////////////////////////////////////////////
-# include "Node.h"
+# include "Command.h"
+# include <unordered_map>
 ////////////////////////////////////////////////////////////////
 class ComsatStation {
 private:
     static const string DEFAULTFEN;
     Node* node;
     vector <Move> movestk;
+    std::unordered_map <string, Command*> commands_map;
     //
     string fetch( const string& prompt );
     void exec( const vector <string> &args );
-    void insert( char c, const string& sqr );
-    void flip_the_switch();
-    bool McMove( const string& s );
-    void select( const string& sqr ); // DJ ...
-    void undo();
-    void getfen() const;
-    void perft( int depth );
+    bool make_move( const string& s );
 public:
-    ComsatStation()
-    : node( Node::cons( DEFAULTFEN )) 
-    {}
-    ComsatStation( Node* node )
-    : node( node )
-    {}
+    ComsatStation( Node* node = Node::cons( DEFAULTFEN ))
+    : node( node ){
+        commands_map[ "insert" ] = new Insert( this );
+        commands_map[ "flip_the_switch" ] = new FlipTheSwitch( this );
+        commands_map[ "select" ] = new Select( this );
+        commands_map[ "undo" ] = new Undo( this );
+        commands_map[ "getfen" ] = new GetFEN( this );
+        commands_map[ "perft" ] = new Perft( this );
+    }
     void Launch(); // your favorite browser( Firefox )
+    friend Command;
+    friend Undo;
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -56,4 +57,3 @@ public:
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-//
