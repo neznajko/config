@@ -72,3 +72,26 @@ public:
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// 32. Four cards are face down on a table. You are told that
+// two are red and two are black, and you need to guess which
+// two are red and which two are black. You do this by pointing
+// to the two cards you’re guessing are red (and then implicitly
+// you’re guessing that the other two are black). Assume that
+// all configurations are equally likely, and that you do not
+// have psychic powers. Find the probability that exactly j of
+// your guesses are correct, for j = 0, 1, 2, 3, 4
+//
+// Assuming we don't have psychic powers it doesn't matter which
+//       cards do we pick. So let's say we pick fyorst two cards:
+// _ _
+// R R B B (1,2) <- 4 Here we have guessed 4 cards,
+// R B R B (1,3) <- 2 here 2 and so forth, zo
+// R B B R (1,4) <- 2 P(4) = 1/6, P(1) = P(3) = 0, P(2) = 2/3
+// B R R B (2,3) <- 2
+// B R B R (2,4) <- 2
+// B B R R (3,4) <- 0
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////

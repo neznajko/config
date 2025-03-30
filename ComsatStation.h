@@ -17,12 +17,14 @@ private:
 public:
     ComsatStation( Node* node = Node::cons( DEFAULTFEN ))
     : node( node ){
-        commands_map[ "insert" ] = new Insert( this );
-        commands_map[ "flip_the_switch" ] = new FlipTheSwitch( this );
-        commands_map[ "select" ] = new Select( this );
-        commands_map[ "undo" ] = new Undo( this );
-        commands_map[ "getfen" ] = new GetFEN( this );
-        commands_map[ "perft" ] = new Perft( this );
+        commands_map = {
+            { "insert", new Insert( this )},
+            { "flip_the_switch", new FlipTheSwitch( this )},
+            { "select", new Select( this )},
+            { "undo", new Undo( this )},
+            { "getfen", new GetFEN( this )},
+            { "perft", new Perft( this )},
+        };
     }
     void Launch(); // your favorite browser( Firefox )
     friend Command;
