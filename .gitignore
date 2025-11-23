@@ -2,6 +2,9 @@
 # Ignore executable file
 #
 config
+backup/
+dep/
+obj/
 #
 # Ignore Emacs backup files
 #

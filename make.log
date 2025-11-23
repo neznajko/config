@@ -1,2 +1,0 @@
-g++ -O3 -g3 -pedantic -std=c++17 -I. -pthread -o obj/config.o -c config.cc
-g++ -O3 -g3 -pedantic -std=c++17 -I. -pthread -o config obj/config.o
