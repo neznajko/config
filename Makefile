@@ -8,7 +8,7 @@ SRCDIR   := .
 INCDIR   := .
 DEPDIR   := dep
 CXXFLAGS := -O3 -$(DEBUG) -pedantic -std=c++17 -I$(INCDIR) -pthread
-OBJS     := $(addprefix $(OBJDIR)/, config.o)
+OBJS     := $(addprefix $(OBJDIR)/, config.o dll.o)
 DEPS     := $(patsubst $(OBJDIR)/%.o, $(DEPDIR)/%.d, \
               $(OBJS))
 ########################################################

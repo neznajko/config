@@ -1,7 +1,8 @@
 #
-# Ignore executable file
+# Ignore executable file( not only )
 #
 config
+log
 backup/
 dep/
 obj/

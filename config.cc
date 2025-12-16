@@ -9,6 +9,7 @@
 # include <array>
 ////////////////////////////////////////////////////////////////
 # include "io.h"
+# include "dll.h"
 ////////////////////////////////////////////////////////////////
 using std::stringstream;
 using std::array;
@@ -31,6 +32,7 @@ void benchmark( void (*f)(), int NfLoops ){
 enum { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN, VOID, GUARD };
 enum { BLACK, WHITE, RED, BLUE };
 enum { Nil, Nop };    
+enum { QUEENSIDE, KINGSIDE };
 ////////////////////////////////////////////////////////////////
 using fig_t = int;
 using clr_t = int;
@@ -70,11 +72,13 @@ class Board {
 public:
     static const int WIDTH = 10;
     static const int HEIGHT = 12;
-    static const int SIZE = WIDTH * HEIGHT;
+    static const int SIZE = 120;
     static const int GUARD_BREADTH = 1;
     static const int GUARD_HEIGHT = 2;
+    static const int ROOK_PATHS = 4;
     static inline const int PROMOTION_RANK[] = { 9, 2 }; // B, W
-    static inline const array <unit_t, SIZE> BOARD = {
+    static inline const int ROOK_FILE[] = { 1, 8 }; // Q, K
+    static inline const array <unit_t, SIZE> EMPTY_BOARD = {
         1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,
         1,0,0,0,0,0,0,0,0,1,
@@ -88,7 +92,10 @@ public:
         1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,
     };
+    static inline array <vector <pos_t>, SIZE> king_attacks = {};
     static inline array <vector <pos_t>, SIZE> knight_attacks = {};
+    static inline
+    array <array <vector <pos_t>, ROOK_PATHS>, SIZE> rook_attacks = {};
     
     static pos_t get_pos( int rank, int file ){
         return rank * WIDTH + file;
@@ -113,10 +120,75 @@ public:
     } 
 
     static pos_t get_pos( const string& coord );
-    static void initialize_knight_attacks();
+    static void initialize_attack_maps();
+    static void initialize_king_attacks( pos_t pos );
+    static void initialize_knight_attacks( pos_t pos );
+    static void initialize_rook_attacks( pos_t, int path );
 };
 ////////////////////////////////////////////////////////////////
-void Board::initialize_knight_attacks() {
+void Board::initialize_attack_maps() {
+    for( int rank = PROMOTION_RANK[WHITE];
+            rank <= PROMOTION_RANK[BLACK]; ++rank ){
+        for( int file = ROOK_FILE[QUEENSIDE];
+                file <= ROOK_FILE[KINGSIDE]; ++file ){
+            auto orig = Board::get_pos( rank, file );
+            initialize_king_attacks( orig );
+            initialize_knight_attacks( orig );
+            for( auto path = 0; path < ROOK_PATHS; ++path ){
+                initialize_rook_attacks( orig, path );
+            }
+        }
+    }
+}
+////////////////////////////////////////////////////////////////
+void Board::initialize_rook_attacks( pos_t orig, int path ){
+    static const array <pos_t, ROOK_PATHS> DR = {
+        -WIDTH, +1, +WIDTH, -1 // N E S W
+    };
+    const auto& dr = DR[path];
+    auto pos = orig + dr;
+    while( EMPTY_BOARD[pos] == Nil ){
+        rook_attacks[orig][path].push_back( pos );
+        pos += dr;
+    }
+}
+////////////////////////////////////////////////////////////////
+void Board::initialize_king_attacks( pos_t orig ){
+    static const int NDR = 8;
+    static const array <pos_t, NDR> DR = { 
+        -Board::WIDTH - 1, // NW 
+        -Board::WIDTH,     // N
+        -Board::WIDTH + 1, // NE     0 1 2
+        +1,                //  E     7 k 3
+        +Board::WIDTH + 1, // SE     6 5 4
+        +Board::WIDTH,     // S
+        +Board::WIDTH - 1, // SW
+        -1,                //  W
+    };
+    for( auto dr: DR ){
+        auto pos = orig + dr;
+        if( Board::EMPTY_BOARD[pos] ){ continue; }
+        king_attacks[orig].push_back( pos );
+    }
+}
+////////////////////////////////////////////////////////////////
+void Board::initialize_knight_attacks( pos_t orig ){
+    static const int NDR = 8;
+    static const array <pos_t, NDR> DR = {
+        -Board::WIDTH * 2 - 1, //
+        -Board::WIDTH * 2 + 1, //     0 1
+        -Board::WIDTH * 1 + 2, //    7   2
+        +Board::WIDTH * 1 + 2, //      n
+        +Board::WIDTH * 2 + 1, //    6   3
+        +Board::WIDTH * 2 - 1, //     5 4
+        +Board::WIDTH * 1 - 2, //
+        -Board::WIDTH * 1 - 2, //
+    };
+    for( auto dr: DR ){
+        auto pos = orig + dr;
+        if( Board::EMPTY_BOARD[pos] ){ continue; }
+        knight_attacks[orig].push_back( pos );
+    }
 }
 ////////////////////////////////////////////////////////////////
 pos_t Board::get_pos( const string& coord )
@@ -136,9 +208,8 @@ public:
     fig_t type;
     clr_t color;
     pos_t pos = 0; // set avec Node::land_unit
-    off_t off; // army offset
-    Figure( fig_t type, clr_t color, off_t off ):
-        type( type ), color( color ), off( off )
+    Figure( fig_t type, clr_t color ):
+        type( type ), color( color )
     {}
     static fig_t get_type( char ch ){
         switch( ch ){
@@ -166,8 +237,7 @@ public:
     string str() const {
         stringstream ss;
         ss << get_char( type, color )
-           << Board::get_coord( pos )
-           << "[" << off << "]";
+           << Board::get_coord( pos );
         return ss.str();
     }
 };
@@ -204,6 +274,14 @@ struct Move { // Define no constructors here
     pos_t dst;
 };
 ////////////////////////////////////////////////////////////////
+ostream& operator <<( ostream& _ , const Move& mv ){
+    _ << Board::get_coord( mv.src );
+    if( mv.type == CRON ){
+        _ << ":";
+    }
+    _ << Board::get_coord( mv.dst );
+    return _;
+}
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -211,18 +289,25 @@ class Node {
 public:
     using get_moves_t = void (Node::*)( unit_t, vector<Move>& );
 
-    inline static const string ArmyName[] = { "Black", "White" };
+    static inline const string ArmyName[] = { "Black", "White" };
     vector<Figure> figures;
     array <unit_t, Board::SIZE> board;
-    array <vector<unit_t>, RED> army;
-    array <get_moves_t, 1> get_moves;
-    
+    array <dll, RED> army;
+    array <get_moves_t, 5> get_moves;
+    array <array <vector <pos_t>, PAWN>, RED> units_map;
+
     Node(): 
-        board( Board::BOARD ),
-        get_moves({ &Node::get_king_moves })
+        board( Board::EMPTY_BOARD ),
+        get_moves({ &Node::get_king_moves,
+                    {},
+                    &Node::get_rook_moves,
+                    {},
+                    &Node::get_knight_moves })
     {
-        figures.emplace_back( VOID,  RED,  -1 ); // Nil
-        figures.emplace_back( GUARD, BLUE, -1 ); // Nop
+        figures.emplace_back( VOID,  RED ); // Nil
+        figures.emplace_back( GUARD, BLUE ); // Nop
+        figures.emplace_back( KING, BLACK );
+        figures.emplace_back( KING, WHITE );
     }
     static vector<string> split( const string& line );
    
@@ -232,17 +317,21 @@ public:
     unit_t land_unit( unit_t unit, pos_t pos ){
         return replace_unit( unit, pos );
     } 
+    void get_unit_moves( unit_t u, vector<Move>& moves ){
+        (this->*get_moves[type( u )])( u, moves );
+    }
     
     void insert_coin( char c, int i, int j );
     unit_t replace_unit( unit_t new_unit, pos_t pos );
     string board_str() const;
-    string units_str( const vector<unit_t>& units ) const;
+    string units_str( const dll& units ) const;
     string str() const;
-
-    void get_unit_moves( unit_t u, vector<Move>& moves ){
-        (this->*get_moves[type( u )])( u, moves );
-    }
-    void get_king_moves( unit_t k, vector<Move>& moves );
+    void get_king_moves( unit_t u, vector<Move>& moves );
+    void get_knight_moves( unit_t u, vector<Move>& moves );
+    void get_rook_moves( unit_t u, vector<Move>& moves );
+    // check if the square at position pos is under attack from
+    // the army of color clr
+    bool under_attack( pos_t pos, clr_t clr );
 };
 ////////////////////////////////////////////////////////////////
 unit_t Node::replace_unit( unit_t new_unit, pos_t pos ){
@@ -256,10 +345,14 @@ void Node::insert_coin( char c, int i, int j ){
     auto type = Figure::get_type( c );
     auto color = Figure::get_color( c );
     auto pos = Board::get_pos( i, j );
-    off_t off = army[ color ].size();
-    unit_t unit = figures.size();
-    figures.emplace_back( type, color, off );
-    army[ color ].push_back( unit );
+    unit_t unit;
+    if( type == KING ){
+        unit = 2 + color; // ?!kK
+    } else {
+        unit = figures.size();
+        figures.emplace_back( type, color );
+    }
+    army[ color ].insert( unit );
     land_unit( unit, pos );
 }
 ////////////////////////////////////////////////////////////////
@@ -297,10 +390,12 @@ string Node::board_str() const {
     return ss.str();
 }
 ////////////////////////////////////////////////////////////////
-string Node::units_str( const vector<unit_t>& units ) const {
+string Node::units_str( const dll& units ) const {
     vector<Figure> figs;
-    for( auto unit: units ){
+    auto unit = units.front();
+    while( unit ){
         figs.push_back( figures[unit] );
+        unit = units.next( unit );
     }
     stringstream ss; ss << figs;
     return ss.str();
@@ -325,10 +420,56 @@ vector<string> Node::split( const string& line ){
 }
 ////////////////////////////////////////////////////////////////
 void Node::get_king_moves( unit_t u, vector<Move>& movs ){
+    const auto src = pos( u );
+    const auto src_clr = color( u );
+    for( auto dst: Board::king_attacks[ src ]){
+        const auto dst_clr = color( board[ dst ]);
+        if( dst_clr == RED ){
+            movs.push_back({ MOVE, src, dst });
+        } else {
+            if( src_clr == dst_clr ){ continue; }
+            movs.push_back({ CRON, src, dst });
+        }        
+    }
 }
 ////////////////////////////////////////////////////////////////
+void Node::get_knight_moves( unit_t u, vector<Move>& movs ){
+    const auto src = pos( u );
+    const auto src_clr = color( u );
+    for( auto dst: Board::knight_attacks[ src ]){
+        const auto dst_clr = color( board[ dst ]);
+        if( dst_clr == RED ){
+            movs.push_back({ MOVE, src, dst });
+        } else {
+            if( src_clr == dst_clr ){ continue; }
+            movs.push_back({ CRON, src, dst });
+        }        
+    }
+}
 ////////////////////////////////////////////////////////////////
+void Node::get_rook_moves( unit_t u, vector<Move>& movs ){
+    const auto src = pos( u );
+    const auto src_clr = color( u );
+    const auto& rook_attacks = Board::rook_attacks[ src ];
+    for( auto path = 0; path < Board::ROOK_PATHS; ++path ){
+        for( auto dst: rook_attacks[ path ]){
+            const auto dst_clr = color( board[ dst ]);
+            if( dst_clr == RED ){
+                movs.push_back({ MOVE, src, dst });
+            } else {
+                if( src_clr != dst_clr ){
+                    movs.push_back({ CRON, src, dst });
+                }
+                break;
+            }            
+        }
+    }
+}   
 ////////////////////////////////////////////////////////////////
+bool Node::under_attack( pos_t pos, clr_t clr ){
+    cout << Board::get_coord( pos ) << nl;
+    return {};
+}
 ////////////////////////////////////////////////////////////////
 class ComsatStation;
 ////////////////////////////////////////////////////////////////
@@ -351,6 +492,12 @@ public:
     void exec( const vector<string> &args ) override;
 };
 ////////////////////////////////////////////////////////////////
+class Select: public Command {
+public:
+    Select( ComsatStation& comsat ): Command( comsat ) {}
+    void exec( const vector<string> &args ) override;
+};
+////////////////////////////////////////////////////////////////
 //  *  .   \ \ - -  @  |  
 // *  . . \ \ \ -  @ @ | | S T A T I O N
 // *  . . \   \  - @ @ |
@@ -365,7 +512,8 @@ public:
 
     ComsatStation() {
         command = {
-            { "insert", new Insert( *this )}
+            { "insert", new Insert( *this )},
+            { "select", new Select( *this )}
         };
     }
     string fetch( const string& prompt );
@@ -417,6 +565,25 @@ void Insert::exec( const vector <string> &args ){
     comsat.node.insert_coin( c, i, j );
 }
 ////////////////////////////////////////////////////////////////
+// > select e4
+void Select::exec( const vector <string> &args ){
+    auto& node = comsat.node;
+
+    const auto sqr = args[ 1 ];
+    const auto pos = Board::get_pos( sqr );
+    const auto unit = node.board[ pos ];
+
+    if( unit ){
+        vector <Move> movs;
+        node.get_unit_moves( unit, movs );
+        cout << movs << nl;
+    } else {
+        for( auto clr: { BLACK, WHITE }){
+            cout << Node::ArmyName[ clr ] << ": "
+                 << node.under_attack( pos, clr ) << nl;
+        }
+    }
+}
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -427,10 +594,15 @@ void Insert::exec( const vector <string> &args ){
 ////////////////////////////////////////////////////////////////
 int main() {
     using namespace config;
+    Board::initialize_attack_maps();
     if( 0 ){
-        Board::initialize_knight_attacks();
-        auto pos = Board::get_pos( "e4" );
-        cout << pos << sp << Board::knight_attacks[pos] << nl;
+        Node node;
+        node.insert_coin( 'k', 4, 4 );
+        node.insert_coin( 'K', 7, 2 );
+        cout << node.str();
+        vector <Move> movs;
+        node.get_king_moves( 2, movs );
+        cout << movs << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -439,3 +611,8 @@ int main() {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+// log:
+// - units_map: type, color => unit
+//   - remove kings from figures
+//   - chaange insert_coin
+//   - operator << for arrays 
