@@ -6,6 +6,7 @@
 # include <cctype>
 # include <sstream>
 # include <unordered_map>
+# include <regex>
 ////////////////////////////////////////////////////////////////
 # include "io.h"
 # include "dll.h"
@@ -323,15 +324,32 @@ public:
     fig_t type( unit_t u ){ return figures[u].type; }
     clr_t color( unit_t u ){ return figures[u].color; }
     pos_t pos( unit_t u ){ return figures[u].pos; }
-    unit_t land_unit( unit_t unit, pos_t pos ){
-        return replace_unit( unit, pos );
-    } 
+    void land_unit( unit_t unit, pos_t pos ){
+        board[ pos ] = unit;
+        figures[ unit ].pos = pos;
+    }
+    unit_t liftoff( pos_t pos ){
+        auto u = board[ pos ];
+        board[ pos ] = Nil;
+        return u;
+    }
+    void teleport( pos_t src, pos_t dst ){
+        land_unit( liftoff( src ), dst );
+    }
+    void move_fwd( Move mov ){
+        if( mov.type == CRON ){
+        } 
+        teleport( mov.src, mov.dst );
+    }
+    void move_bwd( Move mov ){
+        if( mov.type == CRON ){
+        } 
+        teleport( mov.dst, mov.src );
+    }
     void get_unit_moves( unit_t u, vector<Move>& moves ){
         (this->*get_moves[type( u )])( u, moves );
-    }
-    
+    }    
     void insert_coin( char c, int i, int j );
-    unit_t replace_unit( unit_t new_unit, pos_t pos );
     string board_str() const;
     string units_str( const dll& units ) const;
     string str() const;
@@ -342,13 +360,6 @@ public:
     // the army of color clr
     bool under_attack( pos_t pos, clr_t clr );
 };
-////////////////////////////////////////////////////////////////
-unit_t Node::replace_unit( unit_t new_unit, pos_t pos ){
-    auto old_unit = board[pos];
-    board[pos] = new_unit;
-    figures[new_unit].pos = pos;
-    return old_unit;
-}
 ////////////////////////////////////////////////////////////////
 void Node::insert_coin( char c, int i, int j ){
     auto type = Figure::get_type( c );
@@ -547,6 +558,12 @@ public:
     void exec( const vector<string> &args ) override;
 };
 ////////////////////////////////////////////////////////////////
+class Undo: public Command {
+public:
+    Undo( ComsatStation& comsat ): Command( comsat ) {}
+    void exec( const vector<string> &args ) override;
+};
+////////////////////////////////////////////////////////////////
 //  *  .   \ \ - -  @  |  
 // *  . . \ \ \ -  @ @ | | S T A T I O N
 // *  . . \   \  - @ @ |
@@ -558,17 +575,44 @@ class ComsatStation {
 public:
     Node node;
     std::unordered_map <string,Command*> command;
+    vector <Move> movestk;
 
     ComsatStation() {
         command = {
             { "insert", new Insert( *this )},
-            { "select", new Select( *this )}
+            { "select", new Select( *this )},
+            { "undo", new Undo( *this )}
         };
     }
     string fetch( const string& prompt );
     void Launch(); // your favorite browser( Firefox )
     void exec( const vector<string> &args );
+    bool make_move( const string& s );
 };
+////////////////////////////////////////////////////////////////
+// e4e5
+bool ComsatStation::make_move( const string& s )
+{
+    static const std::regex MOVE_REGEX { 
+        "([a-h][1-8])([a-h][1-8])(.*)"
+    };
+    std::smatch move_match;
+    if( !std::regex_match( s, move_match, MOVE_REGEX )){
+        return false;
+    }
+    const string src_sqr = move_match[ 1 ].str();
+    const string dst_sqr = move_match[ 2 ].str();
+    pos_t src = Board::get_pos( src_sqr );
+    pos_t dst = Board::get_pos( dst_sqr );
+    
+    auto u = node.board[ dst ];
+    move_t type = u ? CRON : MOVE;
+    Move mv{ type, src, dst };
+    movestk.push_back( mv );
+    node.move_fwd( mv );
+    
+    return true;
+}
 ////////////////////////////////////////////////////////////////
 string ComsatStation::fetch( const string& prompt )
 {
@@ -597,12 +641,20 @@ void ComsatStation::exec( const vector<string> &args )
     if( command.count( name )){
         command[ name ]->exec( args );
     } else {
-        cout << name << ": unknown command\n";
+        if( !make_move( name )){
+            cout << name << ": unknown command\n";
+        }
     }
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+void Undo::exec( const vector <string> &args ){
+    if( comsat.movestk.empty()){ return; }
+    auto mov = comsat.movestk.back();
+    comsat.movestk.pop_back();
+    comsat.node.move_bwd( mov );
+}
 ////////////////////////////////////////////////////////////////
 // > insert n e4
 void Insert::exec( const vector <string> &args ){
@@ -694,4 +746,8 @@ int main() {
 // + under_attack
 //   + on_the_bench
 // + select
-// - upload
+// + upload
+// + make_move
+// + undo_move
+// - detach Comsat
+// - CRON
