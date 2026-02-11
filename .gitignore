@@ -1,11 +1,16 @@
 #
-# Ignore executable file( not only )
+# Ignore stuff
 #
 config
 log
 backup/
-dep/
-obj/
+#
+# Keep dir only, ignore content
+#
+dep/*
+obj/*
+!dep/.gitkeep
+!obj/.gitkeep
 #
 # Ignore Emacs backup files
 #

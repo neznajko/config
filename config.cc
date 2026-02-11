@@ -284,18 +284,38 @@ void Node::move_bwd( Move mov ){
 }
 ////////////////////////////////////////////////////////////////
 void Node::get_army_moves( vector <Move> &moves ){
-    auto list = army[ the_switch ];
-    auto u = list.front();
+    const auto& units = army[ the_switch ]; // dll
+    auto u = units.front();
     while( u ){
         get_unit_moves( u, moves );
-        u = list.next( u );
-    }
-}
+        u = units.next( u );
+    }}
+////////////////////////////////////////////////////////////////
+// Forsyth-Edwards Notation
+// After 1.e4 c5:
+// rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR
+// w KQkq c6 0 2
+////////////////////////////////////////////////////////////////
+Node::Node( const string& fen ): Node() {
+    int i{ Board::GUARD_HEIGHT  };
+    int j{ Board::GUARD_BREADTH };
+    const auto vec{ split( fen )};
+    for( const char c: vec[ 0 ]){
+        if( c == '/' ){ // new row
+            j = Board::GUARD_BREADTH; // reset column
+            ++i;                      // increment row
+        } else if( isdigit( c )){ // empty squares
+            j += c - '0'; // rewind
+        } else {
+            insert_coin( c, i, j++ );
+        }}
+    if( vec[ 1 ].front() == 'b' ){
+        flip_the_switch();
+    }}
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -338,8 +358,9 @@ public:
 int main() {
     using namespace config;
     Board::initialize_attack_maps();
-    if( 0 ){
-        Debug::under_attack();
+    if( 1 ){
+        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
+        cout << node << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -368,11 +389,8 @@ int main() {
 //   + bwd
 // + テスト
 // + review Node
-// - get_moves
-// - load from fen
+// + get_army_moves
+// + load from fen
 // - stockfish
 // - perft
 // - tesuto
-
-
-

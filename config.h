@@ -226,7 +226,10 @@ public:
         figures.emplace_back( GUARD, BLUE ); // Nop
         on_the_bench.push_back( false );
     }
+    Node( const string& fen );
     static vector<string> split( const string& line );
+    // Construct a Node from Forsyth-Edwards Notation- -
+    // static Node* cons( const string& fen );
    
     fig_t type( unit_t u ) const { return figures[u].type; }
     clr_t color( unit_t u ) const { return figures[u].color; }
