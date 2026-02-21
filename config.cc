@@ -5,6 +5,7 @@
 # include <chrono>
 # include <cctype>
 ////////////////////////////////////////////////////////////////
+# include "Search.h"
 # include "comsat.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
@@ -214,7 +215,7 @@ void Node::get_rook_moves( unit_t u, vector <Move> &movs ){
 ////////////////////////////////////////////////////////////////
 // Check if the square at position off is under attack from the
 // army with color clr
-bool Node::under_attack( pos_t off, clr_t clr ){
+bool Node::under_attack( pos_t off, clr_t clr ) const {
     // KING
     auto u = units_map[ clr ][ KING ].front();
     if( Board::bitboard_king_attacks[ pos( u )][ off ]){
@@ -313,6 +314,11 @@ Node::Node( const string& fen ): Node() {
         flip_the_switch();
     }}
 ////////////////////////////////////////////////////////////////
+// Checks if the side to move can take the opponent's king
+bool Node::check() const {
+    const auto u = units_map[ !the_switch ][ KING ].front();
+    return under_attack( pos( u ), the_switch );
+}
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -361,6 +367,7 @@ int main() {
     if( 1 ){
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         cout << node << nl;
+        cout << Search( &node ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -391,6 +398,9 @@ int main() {
 // + review Node
 // + get_army_moves
 // + load from fen
-// - stockfish
-// - perft
-// - tesuto
+// + stockfish
+// + check
+// + perft
+// + tesuto
+//   depth 8: 330807660, 0m8.374s
+

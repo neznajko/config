@@ -261,11 +261,12 @@ public:
     void get_rook_moves( unit_t u, vector<Move>& moves );
     // check if the square at position pos is under attack from
     // the army of color clr
-    bool under_attack( pos_t pos, clr_t clr );
+    bool under_attack( pos_t pos, clr_t clr ) const;
     void move_fwd( Move mov );
     void move_bwd( Move mov );
     // get all unit moves for the active army
     void get_army_moves( vector <Move> &moves );
+    bool check() const;
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

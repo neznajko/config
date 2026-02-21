@@ -8,7 +8,8 @@ SRCDIR   := .
 INCDIR   := .
 DEPDIR   := dep
 CXXFLAGS := -O3 -$(DEBUG) -pedantic -std=c++17 -I$(INCDIR) -pthread
-OBJS     := $(addprefix $(OBJDIR)/, config.o comsat.o io.o)
+OBJS     := $(addprefix $(OBJDIR)/, config.o comsat.o io.o \
+              Search.o)
 DEPS     := $(patsubst $(OBJDIR)/%.o, $(DEPDIR)/%.d, \
               $(OBJS))
 ########################################################
@@ -34,4 +35,3 @@ clean:
 ########################################################
 # log: http://scottmcpeak.com/autodepend/autodepend.html
 ########################################################
-
