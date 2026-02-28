@@ -159,7 +159,8 @@ string Node::str() const {
        << ArmyName[1] << ": " << units_str( army[1] ) << nl
        << units_map[ BLACK ] << nl
        << units_map[ WHITE ] << nl
-       << "Bench: " << bench << nl;
+       << "Bench: " << bench << nl
+       << "key: " << std::uppercase << std::hex << key << nl;
     return ss.str();
 }
 ////////////////////////////////////////////////////////////////
@@ -263,10 +264,7 @@ bool Node::under_attack( pos_t off, clr_t clr ) const {
 ////////////////////////////////////////////////////////////////
 void Node::move_fwd( Move mov ){
     if( mov.type == CRON ){
-        auto u = board[ mov.dst ];
-        army[ !the_switch ].unlink( u );
-        bench.push_back( u );
-        on_the_bench[ u ] = true;
+        put_on_the_bench( board[ mov.dst ]);
     } 
     teleport( mov.src, mov.dst );
     flip_the_switch();
@@ -275,11 +273,7 @@ void Node::move_fwd( Move mov ){
 void Node::move_bwd( Move mov ){
     teleport( mov.dst, mov.src );
     if( mov.type == CRON ){
-        auto u = bench.back();
-        bench.pop_back();
-        army[ the_switch ].dance( u );
-        on_the_bench[ u ] = false;
-        board[ mov.dst ] = u;
+        board[ mov.dst ] = get_off_the_bench();
     }
     flip_the_switch();
 }
@@ -364,10 +358,11 @@ public:
 int main() {
     using namespace config;
     Board::initialize_attack_maps();
-    if( 1 ){
+    Hash::initialize();
+    if( 0 ){
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         cout << node << nl;
-        cout << Search( &node ).perft( 8 ) << nl;
+        cout << Search( &node ).perft( 5 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -403,4 +398,6 @@ int main() {
 // + perft
 // + tesuto
 //   depth 8: 330807660, 0m8.374s
-
+// - hashing
+// - lookup table
+// - threads
