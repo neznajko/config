@@ -359,10 +359,10 @@ int main() {
     using namespace config;
     Board::initialize_attack_maps();
     Hash::initialize();
-    if( 0 ){
+    if( 1 ){
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         cout << node << nl;
-        cout << Search( &node ).perft( 5 ) << nl;
+        cout << Search( &node ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -398,6 +398,7 @@ int main() {
 // + perft
 // + tesuto
 //   depth 8: 330807660, 0m8.374s
-// - hashing
-// - lookup table
+// + hashing
+// + lookup table
+//   depth 8: 330807660, 0m0.328s
 // - threads

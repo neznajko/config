@@ -167,6 +167,7 @@ public:
     void bashing() {
         zobrist( Hash::the_switch());
     }
+    
     void insert_coin( char c, int i, int j );
     string board_str() const;
     string units_str( const dll& units ) const;
