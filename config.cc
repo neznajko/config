@@ -320,7 +320,7 @@ bool Node::check() const {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-class Debug {
+class Tesuto {
 public:
     static void dump_bitboard( array <bool, Board::SIZE> bitboard ){
         for( int rank = Board::PROMOTION_RANK[WHITE];
@@ -347,6 +347,24 @@ public:
         auto pos = Board::get_pos( "f7" );
         cout << node.under_attack( pos, BLACK ) << nl;
     }
+//  0 123965894809152
+//  1 123965886416448
+//  4 123965911594560
+//  2 123965903201856
+//  7 123965903201856
+//  8 123965903201856
+//  9 123965903201856
+//  6 123965911594560
+//  3 123965894809152
+//  5 123965886416448
+    static void thd() {
+        thd::TaskForce alpha_squad;
+        for( int j = 0; j < 10; ++j ){
+            alpha_squad.enqueue( [j] {
+                cout << j << sp << std::this_thread::get_id() << nl;
+            });                    
+        }
+    }
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -360,9 +378,10 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
-        cout << node << nl;
-        cout << Search( &node ).perft( 8 ) << nl;
+        Tesuto::thd();
+        // auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
+        // cout << node << nl;
+        // cout << Search( &node ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
