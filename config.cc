@@ -378,7 +378,6 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        Tesuto::thd();
         // auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         // cout << node << nl;
         // cout << Search( &node ).perft( 8 ) << nl;
