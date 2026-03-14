@@ -8,11 +8,11 @@ ostream& operator<<( ostream& os, const Figure& fig ){
 }
 ////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& _ , const Move& mv ){
-    _ << Board::get_coord( mv.src );
-    if( mv.type == CRON ){
+    _ << Board::get_coord( mv.src());
+    if( mv.iscap()){
         _ << ":";
     }
-    _ << Board::get_coord( mv.dst );
+    _ << Board::get_coord( mv.dst());
     return _;
 }
 ////////////////////////////////////////////////////////////////

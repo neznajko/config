@@ -180,10 +180,10 @@ void Node::get_king_moves( unit_t u, vector <Move> &movs ){
     for( auto dst: Board::king_attacks[ src ]){
         const auto dst_clr = color( board[ dst ]);
         if( dst_clr == RED ){
-            movs.push_back({ MOVE, src, dst });
+            movs.push_back({ Move::pack( src, dst, Move::MOV )});
         } else {
             if( src_clr == dst_clr ){ continue; }
-            movs.push_back({ CRON, src, dst });
+            movs.push_back({ Move::pack( src, dst, Move::CAP )});
         }}}
 ////////////////////////////////////////////////////////////////
 void Node::get_knight_moves( unit_t u, vector <Move> &movs ){
@@ -192,10 +192,10 @@ void Node::get_knight_moves( unit_t u, vector <Move> &movs ){
     for( auto dst: Board::knight_attacks[ src ]){
         const auto dst_clr = color( board[ dst ]);
         if( dst_clr == RED ){
-            movs.push_back({ MOVE, src, dst });
+            movs.push_back({ Move::pack( src, dst, Move::MOV )});
         } else {
             if( src_clr == dst_clr ){ continue; }
-            movs.push_back({ CRON, src, dst });
+            movs.push_back({ Move::pack( src, dst, Move::CAP )});
         }}}
 ////////////////////////////////////////////////////////////////
 void Node::get_rook_moves( unit_t u, vector <Move> &movs ){
@@ -206,10 +206,10 @@ void Node::get_rook_moves( unit_t u, vector <Move> &movs ){
         for( auto dst: rook_attacks[ path ]){
             const auto dst_clr = color( board[ dst ]);
             if( dst_clr == RED ){
-                movs.push_back({ MOVE, src, dst });
+                movs.push_back({ Move::pack( src, dst, Move::MOV )});
             } else {
                 if( src_clr != dst_clr ){
-                    movs.push_back({ CRON, src, dst });
+                    movs.push_back({ Move::pack( src, dst, Move::CAP )});
                 }
                 break;
             }}}}   
@@ -263,17 +263,17 @@ bool Node::under_attack( pos_t off, clr_t clr ) const {
 }
 ////////////////////////////////////////////////////////////////
 void Node::move_fwd( Move mov ){
-    if( mov.type == CRON ){
-        put_on_the_bench( board[ mov.dst ]);
+    if( mov.iscap()){
+        put_on_the_bench( board[ mov.dst()]);
     } 
-    teleport( mov.src, mov.dst );
+    teleport( mov.src(), mov.dst());
     flip_the_switch();
 }
 ////////////////////////////////////////////////////////////////
 void Node::move_bwd( Move mov ){
-    teleport( mov.dst, mov.src );
-    if( mov.type == CRON ){
-        board[ mov.dst ] = get_off_the_bench();
+    teleport( mov.dst(), mov.src());
+    if( mov.iscap()){
+        board[ mov.dst() ] = get_off_the_bench();
     }
     flip_the_switch();
 }
@@ -378,9 +378,9 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        // auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
-        // cout << node << nl;
-        // cout << Search( &node ).perft( 8 ) << nl;
+        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
+        cout << node << nl;
+        cout << Search( &node ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -420,3 +420,8 @@ int main() {
 // + lookup table
 //   depth 8: 330807660, 0m0.328s
 // - threads
+//   + pool
+//   - valid moves
+//   - atomic TT
+// + packing moves into 16 bits
+//   depth 8: 330807660, 0m0.280s

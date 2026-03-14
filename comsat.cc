@@ -25,8 +25,8 @@ bool ComsatStation::make_move( const string& s )
     pos_t dst = Board::get_pos( dst_sqr );
     
     auto u = node.board[ dst ];
-    move_t type = u ? CRON : MOVE;
-    Move mv{ type, src, dst };
+    auto type = u ? Move::CAP : Move::MOV;
+    Move mv{ Move::pack( src, dst, type )};
     movestk.push_back( mv );
     node.move_fwd( mv );
     

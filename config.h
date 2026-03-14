@@ -59,30 +59,7 @@ public:
 ////////////////////////////////////////////////////////[ Move ]
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// +---+---+---+---+---+---+---+---+
-// | P | L | S | N | B | R | Q | C |
-// +---+---+---+---+---+---+---+---+
-// C - Capture Recapture Or Not, if this bit is set it's
-// capture or recapture, otherwise it's not.
-// Q,R,B,N - Queen, Rook, Bishop, kNight promotion.
-// S,L - Short and Long Castles.
-// P - capture òn pá só
-////////////////////////////////////////////////////////////////
-constexpr move_t MOVE{   0           };
-constexpr move_t CRON{        1 << 0 };
-constexpr move_t QUEEN_PMOT{  1 << 1 };
-constexpr move_t ROOK__PMOT{  1 << 2 };
-constexpr move_t BSHOP_PMOT{  1 << 3 };
-constexpr move_t NIGHT_PMOT{  1 << 4 };
-constexpr move_t SHOTCASL{    1 << 5 };
-constexpr move_t LONGCASL{    1 << 6 };
-constexpr move_t NPAS{        1 << 7 };
-////////////////////////////////////////////////////////////////
 struct Move { // Define no constructors here
-    move_t type;
-    pos_t src;
-    pos_t dst;
-};
 ////////////////////////////////////////////////////////////////
 //  f e d c b a 9 8 7 6 5 4 3 2 1 0
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -97,8 +74,6 @@ struct Move { // Define no constructors here
 // 0 1 1 0  EQUALS B         1 1 1 0  =B 
 // 0 1 1 1  EQUALS N         1 1 1 1  =N 
 ////////////////////////////////////////////////////////////////
-struct Mov {
-private:
     static inline const array <pos_t,Board::SIZE> MAP_MAILBOX_TO_64 = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -123,7 +98,6 @@ private:
         81,82,83,84,85,86,87,88,
         91,92,93,94,95,96,97,98,
     };
-public:
     enum type_t : u8 {
             MOV = 0x0,
           SHORT = 0x1,    
