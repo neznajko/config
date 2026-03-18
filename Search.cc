@@ -56,14 +56,14 @@ void Hash::initialize( u64 seed ){
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-constexpr int MOVSCAP = 32;
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 u64 Search::perft( u8 depth ){
     if( depth == 0 ){ return 1; }
     const auto key = node->key;
     auto cache = perft_tt.probe( key, depth );
     if( cache ){ return cache; }
-    vector <Move> movs; movs.reserve( MOVSCAP );
+    auto& movs = movstk[ depth ]; movs.clear();
     node->get_army_moves( movs );
     u64 n = 0;
     for( const auto mov: movs ){
@@ -76,6 +76,23 @@ u64 Search::perft( u8 depth ){
     perft_tt.store( key, n, depth );
     return n;
 }
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+const vector<Move>& Search::get_legal_moves() {
+    auto& legl = movstk.front(); legl.clear();
+    auto& movs = movstk.back();  movs.clear();
+    node->get_army_moves( movs );
+    for( const auto mov: movs ){
+        node->move_fwd( mov );
+        if( !node->check()){
+            legl.push_back( mov );
+        }
+        node->move_bwd( mov );
+    }
+    return legl;
+}
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 }
 ////////////////////////////////////////////////////////////////

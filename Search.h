@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////
 # include <random>
 ////////////////////////////////////////////////////////////////
-# include "Board.h"
+# include "move.h"
 # include "thd.h"
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -71,14 +71,23 @@ public:
 ////////////////////////////////////////////////////////////////
 class Search {
 private:
+    static const int MAXDEPTH = 16;
+    static const int MOVSCAP = 32;
+    
     class Node* node;
     Perft::TranspositionTable perft_tt;
+    array<vector<Move>,MAXDEPTH + 1> movstk;
 public:
     Search( Node* node ):
         node( node ),
         perft_tt( Perft::TranspositionTable( 64 ))
-    {}
+    {
+        for( int j = 0; j < movstk.size(); ++j ){
+            movstk[j].reserve( MOVSCAP );
+        }
+    }
     u64 perft( u8 depth );
+    const vector<Move>& get_legal_moves();
 };
 ////////////////////////////////////////////////////////////////
 }

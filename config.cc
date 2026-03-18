@@ -380,7 +380,8 @@ int main() {
     if( 1 ){
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         cout << node << nl;
-        cout << Search( &node ).perft( 8 ) << nl;
+        cout << Search( &node ).get_legal_moves() << nl;
+        //cout << Search( &node ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -421,7 +422,7 @@ int main() {
 //   depth 8: 330807660, 0m0.328s
 // - threads
 //   + pool
-//   - valid moves
+//   + valid moves
 //   - atomic TT
 // + packing moves into 16 bits
 //   depth 8: 330807660, 0m0.280s
