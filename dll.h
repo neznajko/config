@@ -27,11 +27,10 @@ struct Link {
 class dll {
 private:
     vector <Link> bufr;
-    Link& ahead;
+#   define ahead bufr.front()
 public:
     dll( int cap = 34 ):
-        bufr( vector <Link> ( cap )),
-        ahead( bufr.front() )
+        bufr( vector <Link> ( cap ))
     {}
     off_t front() const {
         return ahead.next;

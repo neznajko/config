@@ -9,7 +9,7 @@ INCDIR   := .
 DEPDIR   := dep
 CXXFLAGS := -O3 -$(DEBUG) -pedantic -std=c++17 -I$(INCDIR) -pthread
 OBJS     := $(addprefix $(OBJDIR)/, config.o comsat.o io.o \
-              Search.o)
+              Search.o hash.o)
 DEPS     := $(patsubst $(OBJDIR)/%.o, $(DEPDIR)/%.d, \
               $(OBJS))
 ########################################################

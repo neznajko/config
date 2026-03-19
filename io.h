@@ -2,10 +2,14 @@
 # ifndef __IO__H
 # define __IO__H
 ////////////////////////////////////////////////////////////////
-# include "config.h"
+# include <iostream>
+# include <string>
+# include <vector>
+# include <array>
 ////////////////////////////////////////////////////////////////
 using std::cout;
 using std::cerr;
+using std::ostream;
 ////////////////////////////////////////////////////////////////
 namespace config {
 ////////////////////////////////////////////////////////////////
@@ -16,7 +20,7 @@ constexpr char sp = ' ';
 template <typename... T>                                       \
 ostream& operator<<( ostream& os, const Container<T...>& con ){\
     os << "[";                                                 \
-    string sep = "";                                           \
+    std::string sep = "";                                      \
     for( const auto& y: con ){                                 \
         os << sep << y;                                        \
         sep = ",";                                             \
@@ -27,12 +31,12 @@ ostream& operator<<( ostream& os, const Container<T...>& con ){\
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-OVERLOAD_OSTREAM_OPERATOR( vector );
+OVERLOAD_OSTREAM_OPERATOR( std::vector );
 ////////////////////////////////////////////////////////////////
 template <typename T, std::size_t N>
-ostream& operator<<( ostream& os, const array<T,N>& a ){
+ostream& operator<<( ostream& os, const std::array<T,N>& a ){
     os << "[";
-    string sep;
+    std::string sep;
     for( auto y: a ){
         os << sep << y;
         sep = ",";
@@ -42,10 +46,10 @@ ostream& operator<<( ostream& os, const array<T,N>& a ){
 ////////////////////////////////////////////////////////////////
 # define dbg( x ) cerr << #x << " = " << x << nl
 ////////////////////////////////////////////////////////////////
-ostream& operator <<( ostream& os, const Figure& fig );
-ostream& operator <<( ostream& _ , const Move& mv );
-ostream& operator <<( ostream& os, const Node& node );
-ostream& operator <<( ostream& os, const dll& list );
+ostream& operator <<( ostream& os, const class Figure& fig );
+ostream& operator <<( ostream& _ , const class Move& mv );
+ostream& operator <<( ostream& os, const class Node& node );
+ostream& operator <<( ostream& os, const class dll& list );
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 }

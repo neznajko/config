@@ -5,8 +5,10 @@
 # include <chrono>
 # include <cctype>
 ////////////////////////////////////////////////////////////////
-# include "Search.h"
+# include "io.h"
+# include "thd.h"
 # include "comsat.h"
+# include "Search.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
 ///////////////////////////////////////////////////////_
@@ -380,8 +382,9 @@ int main() {
     if( 1 ){
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         cout << node << nl;
-        cout << Search( &node ).get_legal_moves() << nl;
-        //cout << Search( &node ).perft( 8 ) << nl;
+        cout << Search( &node ).perft( 8 ) << nl;
+        auto copy = node;
+        cout << Search( &copy ).perft( 8 ) << nl;
     } else {
         ComsatStation().Launch();
     }
@@ -420,7 +423,7 @@ int main() {
 // + hashing
 // + lookup table
 //   depth 8: 330807660, 0m0.328s
-// - threads
+// - threads  
 //   + pool
 //   + valid moves
 //   - atomic TT
