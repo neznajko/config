@@ -1,8 +1,9 @@
 ////////////////////////////////////////////////////////////////
 # pragma once
 ////////////////////////////////////////////////////////////////
-# include "config.h"
+# include <utility>
 ////////////////////////////////////////////////////////////////
+# include "config.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
 ////////////////////////////////////////////////////////////////
@@ -52,20 +53,21 @@ class Search {
 private:
     static const int MAXDEPTH = 16;
     static const int MOVSCAP = 32;
+
+    static inline Perft::TranspositionTable PERFT{ 64 };
     
-    Node* node;
-    Perft::TranspositionTable perft_tt;
+    Node node;
     array<vector<Move>,MAXDEPTH + 1> movstk;
 public:
-    Search( Node* node ):
-        node( node ),
-        perft_tt( Perft::TranspositionTable( 64 ))
+    Search( Node node ):
+        node( std::move( node ))
     {
         for( int j = 0; j < movstk.size(); ++j ){
             movstk[j].reserve( MOVSCAP );
         }
     }
     u64 perft( u8 depth );
+    u64 perft_thd( u8 depth );
 };
 ////////////////////////////////////////////////////////////////
 }

@@ -2,6 +2,8 @@
 # include <limits>
 ////////////////////////////////////////////////////////////////
 # include "Search.h"
+# include "thd.h"
+# include "io.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
 ////////////////////////////////////////////////////////////////
@@ -31,26 +33,45 @@ u64 TranspositionTable::probe( u64 key, u8 depth ){
 }
 ////////////////////////////////////////////////////////////////
 }
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////[ Search ]
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 u64 Search::perft( u8 depth ){
     if( depth == 0 ){ return 1; }
-    const auto key = node->key;
-    auto cache = perft_tt.probe( key, depth );
+    const auto key = node.key;
+    auto cache = PERFT.probe( key, depth );
     if( cache ){ return cache; }
     auto& movs = movstk[ depth ]; movs.clear();
-    node->get_army_moves( movs );
+    node.get_army_moves( movs );
     u64 n = 0;
     for( const auto mov: movs ){
-        node->move_fwd( mov );
-        if( !node->check()){
+        node.move_fwd( mov );
+        if( !node.check()){
             n += perft( depth - 1 );
         }
-        node->move_bwd( mov );
+        node.move_bwd( mov );
     }
-    perft_tt.store( key, n, depth );
+    PERFT.store( key, n, depth );
+    return n;
+}
+////////////////////////////////////////////////////////////////
+u64 Search::perft_thd( u8 depth ){
+    u64 n = 0;
+    {
+        thd::TaskForce alpha_squad;
+        auto& movs = movstk.front(); movs.clear();
+        node.get_army_moves( movs );
+        for( const auto mov: movs ){
+            node.move_fwd( mov );
+            if( !node.check()){
+                alpha_squad.enqueue( [&n,depth,copy=node]() {
+                    n += Search( copy ).perft( depth - 1 );
+                });
+            }
+            node.move_bwd( mov );
+        }
+    }
     return n;
 }
 ////////////////////////////////////////////////////////////////

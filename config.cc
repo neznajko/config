@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////
 namespace config {
 ///////////////////////////////////////////////////////_
-void benchmark( void (*f)(), int NfLoops ){
+void benchmark( std::function<void()> f, int NfLoops ){
     using namespace std::chrono;
     const auto start{ steady_clock::now()};
     while( NfLoops-- > 0 ){ f(); }
@@ -367,6 +367,12 @@ public:
             });                    
         }
     }
+    static void perft( u8 depth ){
+        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
+        benchmark( [depth,node] {
+            cout << Search( node ).perft_thd( depth ) << nl;
+        }, 1 );
+    }
 };
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -380,11 +386,7 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
-        cout << node << nl;
-        cout << Search( &node ).perft( 8 ) << nl;
-        auto copy = node;
-        cout << Search( &copy ).perft( 8 ) << nl;
+        Tesuto::perft( 9 );
     } else {
         ComsatStation().Launch();
     }
@@ -423,9 +425,10 @@ int main() {
 // + hashing
 // + lookup table
 //   depth 8: 330807660, 0m0.328s
-// - threads  
+// + threads  
 //   + pool
-//   + valid moves
+//     depth 8: 330807660, 0.067 sec
+//     depth 9: 5624883832, 0.549 sec
 //   - atomic TT
 // + packing moves into 16 bits
 //   depth 8: 330807660, 0m0.280s

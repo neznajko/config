@@ -63,6 +63,7 @@ public:
     using get_moves_t = void (Node::*)( unit_t, vector<Move>& );
 
     static inline const string ArmyName[] = { "Black", "White" };
+
     vector <Figure> figures;
     vector <bool> on_the_bench;
     array <unit_t, Board::SIZE> board;
