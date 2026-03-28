@@ -2,23 +2,10 @@
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-# include <chrono>
-# include <cctype>
-////////////////////////////////////////////////////////////////
-# include "io.h"
-# include "thd.h"
-# include "comsat.h"
-# include "Search.h"
+# include "tesuto.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
 ///////////////////////////////////////////////////////_
-void benchmark( std::function<void()> f, int NfLoops ){
-    using namespace std::chrono;
-    const auto start{ steady_clock::now()};
-    while( NfLoops-- > 0 ){ f(); }
-    const auto stop{ steady_clock::now()};
-    duration<double> total{ stop - start };
-    cout << total.count() << " sec\n";}
 ////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// B o a r d 
 ////////////////////////////////////////////////////////////////
@@ -319,63 +306,6 @@ bool Node::check() const {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-class Tesuto {
-public:
-    static void dump_bitboard( array <bool, Board::SIZE> bitboard ){
-        for( int rank = Board::PROMOTION_RANK[WHITE];
-             rank <= Board::PROMOTION_RANK[BLACK]; ++rank ){
-            for( int file = Board::ROOK_FILE[QUEENSIDE];
-                 file <= Board::ROOK_FILE[KINGSIDE]; ++file ){
-                auto orig = Board::get_pos( rank, file );
-                cout << bitboard[ orig ] << sp;
-            }
-            cout << nl;
-        }
-    }
-    static void bitboards() {
-        auto orig = Board::get_pos( "g3" );
-        dump_bitboard( Board::bitboard_rook_attacks[ orig ]);
-    }
-    static void under_attack() {
-        Node node;
-        node.insert_coin( 'K', 4, 6 );
-        node.insert_coin( 'k', 7, 5 );
-        node.insert_coin( 'N', 8, 2 );
-        node.insert_coin( 'r', 8, 6 );
-        cout << node.str() << nl;
-        auto pos = Board::get_pos( "f7" );
-        cout << node.under_attack( pos, BLACK ) << nl;
-    }
-//  0 123965894809152
-//  1 123965886416448
-//  4 123965911594560
-//  2 123965903201856
-//  7 123965903201856
-//  8 123965903201856
-//  9 123965903201856
-//  6 123965911594560
-//  3 123965894809152
-//  5 123965886416448
-    static void thd() {
-        thd::TaskForce alpha_squad;
-        for( int j = 0; j < 10; ++j ){
-            alpha_squad.enqueue( [j] {
-                cout << j << sp << std::this_thread::get_id() << nl;
-            });                    
-        }
-    }
-    static void perft( u8 depth ){
-        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
-        benchmark( [depth,node] {
-            cout << Search( node ).perft_thd( depth ) << nl;
-        }, 1 );
-    }
-};
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -386,7 +316,7 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        Tesuto::perft( 9 );
+        Tesuto::perft( 8 );
     } else {
         ComsatStation().Launch();
     }
@@ -396,39 +326,6 @@ int main() {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 // log:
-// + units_map: type, color => unit
-//   + remove kings from figures
-//   + chaange insert_coin
-//   + operator << for arrays
-// + bitboard_attack_maps
-// + under_attack
-//   + on_the_bench
-// + select
-// + upload
-// + make_move
-// + undo_move
-// + detach Comsat
-// + CRON
-//   + the_switch
-//   + bench
-//   + fwd
-//   + bwd
-// + テスト
-// + review Node
-// + get_army_moves
-// + load from fen
-// + stockfish
-// + check
-// + perft
-// + tesuto
-//   depth 8: 330807660, 0m8.374s
-// + hashing
-// + lookup table
-//   depth 8: 330807660, 0m0.328s
-// + threads  
-//   + pool
-//     depth 8: 330807660, 0.067 sec
-//     depth 9: 5624883832, 0.549 sec
-//   - atomic TT
-// + packing moves into 16 bits
-//   depth 8: 330807660, 0m0.280s
+//  - atomic TT
+//    + swap depth and nodes in data
+//    - tesuto

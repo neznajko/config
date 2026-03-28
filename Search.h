@@ -11,25 +11,28 @@ namespace config {
 namespace Perft {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-// +--+--+--+--+--+-- ... --+ FF FF FF FF FF FF FF FF
-// | d e  p  t  h |         |
-// +--+--+--+--+--+-- ... --+    
+// +----------------+---------------+
+// | nodes: 59 bits | depth: 5 bits |
+// +----------------+---------------+
 struct TTEntry {
-    static const u64 NODES_MASK = 0x07'FF'FF'FF'FF'FF'FF'FFULL;
-    static const int DEPTH_SHFT = 59;
+    static const u64 DEPTH_MASK = 0x1FULL;
+    static const u64 DEPTH_SIZE = 5;
     
     u64 key;
     u64 data;
     
     u64 nodes() const {
-        return data & NODES_MASK;
+        return data >> DEPTH_SIZE;
     }
     u8 depth() const {
-        return data >> DEPTH_SHFT;
+        return data & DEPTH_MASK;
+    }
+    u64 pack( u64 nodes, u8 depth ){
+        return (nodes << DEPTH_SIZE) | depth;
     }
     void save( u64 key, u64 nodes, u8 depth ){
         this->key = key;
-        data = ((u64) depth << DEPTH_SHFT) | nodes;
+        data = pack( nodes, depth );
     }
 };
 ////////////////////////////////////////////////////////////////
@@ -54,7 +57,7 @@ private:
     static const int MAXDEPTH = 16;
     static const int MOVSCAP = 32;
 
-    static inline Perft::TranspositionTable PERFT{ 64 };
+    static inline Perft::TranspositionTable PERFT{ 128 };
     
     Node node;
     array<vector<Move>,MAXDEPTH + 1> movstk;
