@@ -19,7 +19,7 @@ TranspositionTable::TranspositionTable( u64 MB ){
 ////////////////////////////////////////////////////////////////
 void TranspositionTable::store( u64 key, u64 nodes, u8 depth ){
     TTEntry& entry = table[key & mask];
-    if( entry.key != key || depth >= entry.depth() ){
+    if( entry.key != key || depth > entry.depth() ){
         entry.save( key, nodes, depth );
     }
 }
@@ -30,6 +30,36 @@ u64 TranspositionTable::probe( u64 key, u8 depth ){
         return entry.nodes();
     }
     return 0; 
+}
+
+////////////////////////////////////////////////////////////////
+Atomic::TranspositionTable::TranspositionTable( u64 MB ){
+    u64 n = MB * 1024 * 1024 / sizeof( TTEntry );
+    // the largest power of 2 that fits in
+    n = 1 << (63 - __builtin_clzll( n ));
+    table = new TTEntry[ n ];
+    mask = n - 1;
+}
+////////////////////////////////////////////////////////////////
+void Atomic::TranspositionTable::store( u64 key, u64 nodes, u8 depth ){
+    TTEntry& entry = table[key & mask];
+    u64 stored_nodes;
+    u8 stored_depth;
+    bool ok = entry.probe( key, stored_nodes, stored_depth );
+    if( !ok or depth > stored_depth ){
+        entry.save( key, nodes, depth );
+    }
+}
+////////////////////////////////////////////////////////////////
+u64 Atomic::TranspositionTable::probe( u64 key, u8 depth ){
+    TTEntry& entry = table[key & mask];
+    u64 stored_nodes;
+    u8 stored_depth;
+    bool ok = entry.probe( key, stored_nodes, stored_depth );
+    if( ok and depth == stored_depth ){
+        return stored_nodes;
+    }
+    return 0;
 }
 ////////////////////////////////////////////////////////////////
 }

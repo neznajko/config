@@ -65,6 +65,7 @@ public:
         }
     }
     static void perft( u8 depth ){
+        // 2r1kr2/6R1/2n5/4n3/8/1NN5/4K3/2R5 w - - 0 1
         auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
         benchmark( [depth,node] {
             cout << Search( node ).perft_thd( depth ) << nl;
