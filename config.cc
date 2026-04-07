@@ -316,7 +316,7 @@ int main() {
     Board::initialize_attack_maps();
     Hash::initialize();
     if( 1 ){
-        Tesuto::perft( 8 ); 
+        Tesuto::perft( 7, 1, true ); 
     } else {
         ComsatStation().Launch();
     }
@@ -328,4 +328,5 @@ int main() {
 // log:
 //  + atomic TT
 //    + swap depth and nodes in data
-//  - tesuto
+//  + tesuto
+//

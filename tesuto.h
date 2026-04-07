@@ -64,16 +64,31 @@ public:
             });                    
         }
     }
-    static void perft( u8 depth ){
-        // 2r1kr2/6R1/2n5/4n3/8/1NN5/4K3/2R5 w - - 0 1
-        auto node = Node( "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1" );
-        benchmark( [depth,node] {
-            cout << Search( node ).perft_thd( depth ) << nl;
-        }, 1 );
+    static void perft( u8 depth, int i, bool thd ){
+        static const vector<string> fen = {
+            "8/1nK5/k7/8/8/8/6R1/8 w - - 0 1",
+            "2r1kr2/6R1/2n5/4n3/8/1NN5/4K3/2R5 w - - 0 1"
+        };
+        cout << "fen: " << fen[i] << nl;
+        auto node = Node( fen[i] );
+        if( thd ){
+            benchmark( [depth,node] {
+                cout << Search( node ).perft_thd( depth ) << nl;
+            }, 1 );
+        } else {
+            benchmark( [depth,node] {
+                cout << Search( node ).perft( depth ) << nl;
+            }, 1 );
+        }
     }
 };
 ////////////////////////////////////////////////////////////////
+// fen   = 0            | 1           | 1
+// depth = 8            | 6           | 7
+// nodes = 330807660    | 1037299894  | 34429863334
+// time  = 0.129998 sec | 1.87937 sec | 70.3199 sec
 ////////////////////////////////////////////////////////////////
 }
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+
