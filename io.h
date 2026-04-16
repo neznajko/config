@@ -47,9 +47,10 @@ ostream& operator<<( ostream& os, const std::array<T,N>& a ){
 # define dbg( x ) cerr << #x << " = " << x << nl
 ////////////////////////////////////////////////////////////////
 ostream& operator <<( ostream& os, const class Figure& fig );
-ostream& operator <<( ostream& _ , const class Move& mv );
+ostream& operator <<( ostream& _ , const struct Move& mv );
 ostream& operator <<( ostream& os, const class Node& node );
 ostream& operator <<( ostream& os, const class dll& list );
+ostream& operator <<( ostream& os, const struct Bitboard& b );
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 }

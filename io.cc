@@ -35,5 +35,17 @@ ostream& operator <<( ostream& os, const dll& list ){
     return os << '}';
 }
 ////////////////////////////////////////////////////////////////
+ostream& operator <<( ostream& s, const Bitboard& b ){
+    u64 bitmask = 1ULL << (Bitboard::S - 1);
+    for( int i = 0; i < Bitboard::H; ++i ){
+        for( int j = 0; j < Bitboard::W; ++j ){
+            s << !!(bitmask & b.bitboard) << sp;
+            bitmask >>= 1;
+        }
+        s << nl;
+    }
+    return s;
+}
+////////////////////////////////////////////////////////////////
 }
 ////////////////////////////////////////////////////////////////

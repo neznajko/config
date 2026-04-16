@@ -96,7 +96,10 @@ void Node::insert_coin( char c, int i, int j ){
     army[ color ].insert( unit );
     units_map[ color ][ type ].push_back( unit );
     land_unit( unit, pos );
+    occ.insert( pos );
 }
+
+
 ////////////////////////////////////////////////////////////////
 string Node::board_str() const {
     vector<string> b = {
@@ -149,7 +152,8 @@ string Node::str() const {
        << units_map[ BLACK ] << nl
        << units_map[ WHITE ] << nl
        << "Bench: " << bench << nl
-       << "key: " << std::uppercase << std::hex << key << nl;
+       << "key: " << std::uppercase << std::hex << key << nl
+       << occ << nl;
     return ss.str();
 }
 ////////////////////////////////////////////////////////////////
@@ -221,48 +225,38 @@ bool Node::under_attack( pos_t off, clr_t clr ) const {
     // ROOKS
     for( auto u: units_map[ clr ][ ROOK ]){
         if( on_the_bench[ u ]){ continue; }
-        auto location = pos( u );
-        if( !Board::bitboard_rook_attacks[ location ][ off ]){
+        if( !Board::bitboard_rook_attacks[ pos( u )][ off ]){
             continue;
         }
-        pos_t a;
-        pos_t b;
-        if( location < off ){
-            a = location;
-            b = off;
-        } else {
-            a = off;
-            b = location;
-        }
-        if( b - a < Board::WIDTH ){ // rank
-            for( auto p = a + 1; p < b; ++p ){
-                if( board[ p ]){ goto nope; }
-            }
-            return true;
-        } else { // file
-            for( auto p = a + Board::WIDTH; p < b;
-                 p += Board::WIDTH ){
-                if( board[ p ]){ goto nope; }
-            }
+        if( !( occ.bitboard & Bitboard::ROOK_MASKS[ pos( u )][ off ])){
             return true;
         }
-    nope:;
     }
     return false;
 }
 ////////////////////////////////////////////////////////////////
 void Node::move_fwd( Move mov ){
+    const auto src = mov.src();
+    const auto dst = mov.dst();
+    occ.erase( src );
     if( mov.iscap()){
-        put_on_the_bench( board[ mov.dst()]);
-    } 
-    teleport( mov.src(), mov.dst());
+        put_on_the_bench( board[ dst ]);
+    } else {
+        occ.insert( dst );
+    }
+    teleport( src, dst );
     flip_the_switch();
 }
 ////////////////////////////////////////////////////////////////
 void Node::move_bwd( Move mov ){
-    teleport( mov.dst(), mov.src());
+    const auto src = mov.src();
+    const auto dst = mov.dst();
+    occ.insert( src );
+    teleport( dst, src );
     if( mov.iscap()){
-        board[ mov.dst() ] = get_off_the_bench();
+        board[ dst ] = get_off_the_bench();
+    } else {
+        occ.erase( dst );
     }
     flip_the_switch();
 }
@@ -315,8 +309,9 @@ int main() {
     using namespace config;
     Board::initialize_attack_maps();
     Hash::initialize();
+    Bitboard::initialize();
     if( 1 ){
-        Tesuto::perft( 7, 1, true ); 
+        Tesuto::perft( 7, 1, true );
     } else {
         ComsatStation().Launch();
     }
@@ -329,4 +324,5 @@ int main() {
 //  + atomic TT
 //    + swap depth and nodes in data
 //  + tesuto
-//
+//  - check
+//    - bitboard

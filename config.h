@@ -10,6 +10,7 @@ using std::stringstream;
 # include "dll.h"
 # include "move.h"
 # include "hash.h"
+# include "bitboard.h"
 ////////////////////////////////////////////////////////////////
 namespace config {
 ////////////////////////////////////////////////////////////////
@@ -73,6 +74,7 @@ public:
     bool the_switch = WHITE;
     vector <unit_t> bench;
     u64 key;
+    Bitboard occ; // occupancy
 
     static vector<string> split( const string& line );
 

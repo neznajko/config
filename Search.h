@@ -110,7 +110,7 @@ private:
     static const int MAXDEPTH = 16;
     static const int MOVSCAP = 32;
 
-    static inline Perft::Atomic::TranspositionTable PERFT{ 128 };
+    static inline Perft::Atomic::TranspositionTable PERFT{ 2048 };
     
     Node node;
     array<vector<Move>,MAXDEPTH + 1> movstk;
