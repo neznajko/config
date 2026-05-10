@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
-struct Move { // Define no constructors here
+struct Move { // no constructors here
 //////////////////////////////////////////////////////
 //  f e d c b a 9 8 7 6 5 4 3 2 1 0
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -23,17 +23,18 @@ struct Move { // Define no constructors here
 // 0 1 1 0  EQUALS B         1 1 1 0  =B 
 // 0 1 1 1  EQUALS N         1 1 1 1  =N 
 //////////////////////////////////////////////////////
-  enum type_t : u8 {
-          MOV = 0x0,
-        SHORT = 0x1,    
-         LONG = 0x2,
-      EQUALSQ = 0x4,
-      EQUALSR = 0x5,
-      EQUALSB = 0x6,
-      EQUALSN = 0x7,
-          CAP = 0x8,
-       OHLALA = 0xb,
+  enum {
+        MOV = 0x0,
+      SHORT = 0x1,    
+       LONG = 0x2,
+    EQUALSQ = 0x4,
+    EQUALSR = 0x5,
+    EQUALSB = 0x6,
+    EQUALSN = 0x7,
+        CAP = 0x8,
+     OHLALA = 0xb,
   };
+  using type_t = i32;
 
   u16 data;
     
@@ -48,7 +49,7 @@ struct Move { // Define no constructors here
     return (( data >> 4 ) & 0x003F );
   }
   type_t type() const {
-    return static_cast<type_t>( data & 0x000F );
+    return ( data & 0x000F );
   }
   bool iscap() const {
     return ( data & CAP );

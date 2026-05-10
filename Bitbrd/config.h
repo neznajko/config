@@ -11,109 +11,163 @@ using std::vector;
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
-enum clr_t : i8 { BLACK, WHITE, RED };
-enum fig_t : i8 { NIL, KING, QUEEN, ROOK, BISHOP,
-                  KNIGHT, PAWN, NOP };
 //////////////////////////////////////////////////////
-// > ch: a-z character
-// < ch numerical 
-constexpr i8 num( char ch ){
+constexpr u8 num( char ch ){
   return ch - 'a';
 }
 //////////////////////////////////////////////////////
 struct Figure {
   // +-----+-----+-----+-----+
-  // | fig             | clr | 0
+  // | clr |             fig | 0
   // +-----+-----+-----+-----+
-  using type_t = i8;
-
-  // kqrbnp
+  //
   inline static array<fig_t,num('s')> TAB = {};
 
-  // > f: fen character( k, Q, n, b, etc. )
-  // < piece color
   static clr_t getclr( char f ){
-    static constexpr array<clr_t,RED> CLR = {
-      BLACK, WHITE };
+    static const clr_t CLR[] = {
+      BLACK, WHITE
+    };
     return CLR[ !!std::isupper( f )];
   }
-  // > f: figure's fen character
-  // < figure's type
   static fig_t getfig( char f ){
     return TAB[ num( std::tolower( f ))];
   }
-  // > fig: KING, QUEEN, etc.
-  //   clr: BLACK or WHITE
-  // < figure's type
-  static type_t pack( fig_t fig, clr_t clr ){
-    return (( fig << 1 ) | clr );
+  static figtype_t pack( clr_t clr, fig_t fig ){
+    return ( clr | fig );
   }
-  // > type: figure's type
-  // < unpacked color
-  static clr_t getclr( type_t type ){
-    return static_cast<clr_t>( type & 1 );
+  static char getchar( figtype_t type ){
+    static const string chars = ".knp.qrb.KNP.QRB";
+    return chars[ type ];
   }
-  // > type: figure's type
-  // < unpacked figure
-  static fig_t getfig( type_t type ){
-    return static_cast<fig_t>( type >> 1 );
+  static clr_t getclr( figtype_t type ){
+    return ( type & WHITE );
   }
-  // > type: figure's type
-  // < fen char( k, K, q, B ... )
-  static char getfen( type_t type ){
-    static const array<string,RED> figures = {
-      ".kqrbnp", " KQRBNP"
-    };
-    return figures[ getclr( type )][ getfig( type )];
+  // 12 is 1100 in binary
+  static figtype_t range( figtype_t type ){
+    return ( type & 12 );
   }
   // TAB
   static void initialize();
 };
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////[ Node ]
 //////////////////////////////////////////////////////
 struct Node {
-  //
-  //
   static vector <string> split( const string& line );
+  
+  // units[ clr | NIL ] - occupancy
+  array<Bitboard,NTYP> units;
+  // att[ clr | NIL ] - shortrange attacks
+  // att[ clr | NOP ] - longrange attacks
+  array<Bitboard,NTYP> att;
+  array<figtype_t,Bitboard::SIZ> lookup = {};
+  vector<figtype_t> bench;
+  clr_t the_switch = BLACK;
 
-  array<array<Bitboard,NOP>,RED> units;
-  array<Figure::type_t,Bitboard::S> lookup = {};
-
-  // > f: figure fen char
-  //   rank, file: 0-based
-  // updates lookup and figure's bitboard
   void insert_coin( char f, off_t rank, off_t file ){
-    const auto fig = Figure::getfig( f );
     const auto clr = Figure::getclr( f );
+    const auto fig = Figure::getfig( f );
     const auto off = Bitboard::getoff( rank, file );
-    land( Figure::pack( fig, clr ), off );
+    land( Figure::pack( clr, fig ), off );
   }
-  // > type: figure's type
-  //   off: bitboard offset
-  // lands a utit of type type at off
-  void land( Figure::type_t type, off_t off ){
-    const auto fig = Figure::getfig( type );
-    const auto clr = Figure::getclr( type );
-    units[ clr ][ fig ].set( off );
+  void setbit( figtype_t type, off_t off ){
+    units[ type ].set( off );
+    units[ Figure::getclr( type )].set( off );
+    establish_att( type, off );
+  }
+  void unsetbit( figtype_t type, off_t off ){
+    units[ type ].unset( off );
+    units[ Figure::getclr( type )].unset( off );
+    reestablish_att( type );
+  }
+  void land( figtype_t type, off_t off ){
+    setbit( type, off );
     lookup[ off ] = type;
   }
-  // > off: offset
-  // < the figure's type from the lookup board
-  Figure::type_t liftoff( off_t off ){
+  figtype_t liftoff( off_t off ){
     const auto type = lookup[ off ];
-    const auto fig = Figure::getfig( type );
-    const auto clr = Figure::getclr( type );
-    units[ clr ][ fig ].unset( off );
+    unsetbit( type, off );
     lookup[ off ] = NIL;
+    return type;
+  }
+  // no lookup update
+  figtype_t blastoff( off_t off ){
+    const auto type = lookup[ off ];
+    unsetbit( type, off );
     return type;
   }
   // teleportation routine
   void teleport( off_t src, off_t dst ){
     land( liftoff( src ), dst );
   }
-  // forward move
-  void movefwd( Move mov ){
-    teleport( mov.src(), mov.dst());
+  void capture( off_t off ){
+    bench.push_back( blastoff( off ));
   }
+  // reversed capture
+  void recapture( off_t off ){
+    land( bench.back(), off );
+    bench.pop_back();
+  }
+  // check out the deflector shield
+  void jump_to_hyperspace( off_t src, off_t dst ){
+    land( blastoff( src ), dst );
+  }
+  // forward move
+  void movfwd( Move mov ){
+    if( mov.iscap()){
+      capture( mov.dst());
+    }
+    teleport( mov.src(), mov.dst());
+    flip_the_switch();
+  }
+  // backward move
+  void movbwd( Move mov ){
+    if( mov.iscap()){
+      jump_to_hyperspace( mov.dst(), mov.src());
+      recapture( mov.dst());
+    } else {
+      teleport( mov.dst(), mov.src());
+    }
+    flip_the_switch();
+  }
+  void flip_the_switch() {
+    the_switch ^= WHITE;
+  }
+  void establish_att( figtype_t type, off_t off ){
+    att[ type ] |= Bitboard::ATT[ type ][ off ];
+    att[ Figure::range( type )] |=
+      Bitboard::ATT[ type ][ off ];
+  }
+  void reestablish_att( figtype_t type ){
+    // - Here I'm afraid, my dear Watson, we have to
+    // reestablish the attack maps!!
+    att[ type ].clear();
+    auto pos = units[ type ];
+    off_t off;
+    while(( off = pos.lpop()) >= 0 ){
+      att[ type ] |= Bitboard::ATT[ type ][ off ];
+    }
+    auto range = Figure::range( type );
+    att[ range ] = ( att[ range | 0x01 ] |
+                     att[ range | 0x10 ] |
+                     att[ range | 0x11 ]);
+  }
+  clr_t actv() const {
+    return the_switch;
+  }
+  clr_t pasv() const {
+    return the_switch ^ WHITE;
+  }
+  Bitboard all() const {
+    return ( units[ BLACK ] | units[ WHITE ]);
+  }
+  Bitboard empty() const {
+    return ~all();
+  }
+  
+  bool undafire( off_t off, clr_t clr ) const;
 };
 //////////////////////////////////////////////////////
 }

@@ -2,11 +2,16 @@
 # pragma once
 //////////////////////////////////////////////////////
 # include <iostream>
+# include <bitset>
+# include <string>
+//////////////////////////////////////////////////////
+# include "defs.h"
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
 using std::cout;
 using std::ostream;
+using std::string;
 //////////////////////////////////////////////////////
 constexpr char nl = '\n';
 constexpr char sp = ' ';
@@ -14,10 +19,17 @@ constexpr char sp = ' ';
 struct Bitboard;
 struct Node;
 struct Move;
+struct Picker;  
 //////////////////////////////////////////////////////
-ostream& operator<<( ostream& s, const Bitboard& bb );
+template <size_t N>
+string hex( u64 y ){
+  return std::bitset<N>( y ).to_string();
+}
+//////////////////////////////////////////////////////
+ostream& operator<<( ostream& s, const Bitboard& b );
 ostream& operator<<( ostream& s, const Node& node );
 ostream& operator<<( ostream& s, const Move& move );
+ostream& operator<<( ostream& s, const Picker& p );
 //////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////

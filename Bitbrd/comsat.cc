@@ -2,8 +2,6 @@
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
-# include <regex>
-//////////////////////////////////////////////////////
 # include "io.h"
 # include "comsat.h"
 //////////////////////////////////////////////////////
@@ -13,15 +11,9 @@ namespace config {
 // e4e5
 bool ComsatStation::make_move( const string& s )
 {
-  static const std::regex MOVE_REGEX { 
-    "([a-h][1-8])([a-h][1-8])(.*)"
-  };
-  std::smatch move_match;
-  if( !std::regex_match( s, move_match, MOVE_REGEX )){
-    return false;
-  }
-  const string src_sqr = move_match[ 1 ].str();
-  const string dst_sqr = move_match[ 2 ].str();
+  // fuck regex( make no mistake )
+  const string src_sqr = s.substr( 0, 2 );
+  const string dst_sqr = s.substr( 2 );
   off_t src = Bitboard::getoff( src_sqr );
   off_t dst = Bitboard::getoff( dst_sqr );
     
@@ -29,7 +21,7 @@ bool ComsatStation::make_move( const string& s )
   auto type = u ? Move::CAP : Move::MOV;
   Move mv{ Move::pack( src, dst, type )};
   movestk.push_back( mv );
-  node.movefwd( mv );
+  node.movfwd( mv );
   
   return true;
 }
@@ -70,12 +62,10 @@ void ComsatStation::exec( const vector<string> &args )
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 void Undo::exec( const vector <string> &args ){
-  /*
   if( comsat.movestk.empty()){ return; }
   auto mov = comsat.movestk.back();
   comsat.movestk.pop_back();
-  comsat.node.move_bwd( mov );
-  */
+  comsat.node.movbwd( mov );
 }
 //////////////////////////////////////////////////////
 // > insert n e4

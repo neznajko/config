@@ -34,39 +34,35 @@ using std::string;
 //      a    b    c    d    e    f    g    h
 //////////////////////////////////////////////////////
 struct Bitboard {
-  static constexpr off_t P = 3;      // 2^P = 8
-  static constexpr off_t D = 8;      // dimension
-  static constexpr off_t M = D - 1;  // mask
-  static constexpr off_t S = D << P; // size
+  static constexpr off_t POW = 3; // 2^POW = 8
+  static constexpr off_t DIM = 8; // another dimension
+  static constexpr off_t MSK = DIM - 1; // mask
+  static constexpr off_t SIZ = DIM << POW; // size
    
-  inline static array<u64,S> BITMASK = {};
+  inline static array<u64,SIZ> BITMASK = {};
+  static array<Bitboard,SIZ> KING_ATTACKS;
+  static array<array<Bitboard,SIZ>,NTYP> ATT;
+  static Bitboard OMEGA;
+  static array<array<Bitboard,SIZ>,SIZ> PLUS;
 
-  u64 board = 0;
-   
-  // > rank, file: 0-based
-  // < bitboard offset
+  u64 board;
+
+  Bitboard( u64 board=0 ): board( board ){}
+
   static off_t getoff( off_t rank, off_t file ){
-    return (( rank << P ) + file );
+    return (( rank << POW ) + file );
   }
-  // > off: bitboard offset
-  // < off's 0-based rank
   static off_t getrank( off_t off ){
-    return ( off >> P );
+    return ( off >> POW );
   }
-  // > off: bitboard offset
-  // < off's 0-based file
   static off_t getfile( off_t off ){
-    return off & M;
+    return off & MSK;
   }
-  // > sq: e4
-  // < sq offset
   static off_t getoff( const string& sq ){ 
     const off_t rank = sq[1] - '1';
     const off_t file = sq[0] - 'a'; 
     return getoff( rank, file );
   }
-  // > off: bitboard offset
-  // < square name like e4
   static string getname( off_t off ){
     static string name{ "g6" };
     static const string ranks = "12345678";
@@ -75,31 +71,52 @@ struct Bitboard {
     name[ 1 ] = ranks[ getrank( off )];
     return name;
   }
-
-  // BITMASK
-  static void initialize();
-    
-  // > off: bitboard offset
-  // sets the off bit
+  
   void set( off_t off ){
     board |= BITMASK[ off ];
   }
-  // > rank, file: 0-based
-  // sets the rank and file bit
   void set( off_t rank, off_t file ){
     set( getoff( rank, file ));
   }
-  // > sq: e5
-  // sets the sq bit
   void set( const string& sq ){
     set( getoff( sq ));
   }
-  // > off: bitboard offset
-  // unsets the off bit
   void unset( off_t off ){
     board ^= BITMASK[ off ];
   }
+  Bitboard& operator|=( const Bitboard& rhs ){
+    board |= rhs.board;
+    return *this;
+  }
+  Bitboard& operator^=( const Bitboard& rhs ){
+    board ^= rhs.board;
+    return *this;
+  }
+  off_t lpop() {
+    if( !board ){ return -1; }
+    auto off = __builtin_ctzll( board );
+    unset( off );
+    return off;
+  }
+  void clear() {
+    board = 0;
+  }
+  bool isset( off_t off ){
+    return BITMASK[ off ] & board;
+  }
+  // BITMASK, ATTACKS and STUFF
+  static void initialize_king_attacks();
+  static void initialize_plus();
+  static void initialize();
 };
+//////////////////////////////////////////////////////
+Bitboard operator|( const Bitboard& lhs,
+                    const Bitboard& rhs );
+Bitboard operator^( const Bitboard& lhs,
+                    const Bitboard& rhs );
+Bitboard operator&( const Bitboard& lhs,
+                    const Bitboard& rhs );
+Bitboard operator~( const Bitboard& rhs );
 //////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////

@@ -1,11 +1,12 @@
 //////////////////////////////////////////////////////
-# include "comsat.h"
 # include "io.h"
+# include "comsat.h"
+# include "search.h"
 //////////////////////////////////////////////////////
 # include <sstream>
-# include <utility>
 //////////////////////////////////////////////////////
-using std::stringstream;
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
@@ -18,9 +19,8 @@ void Figure::initialize() {
   TAB[ num( 'p' )] = PAWN;
 }
 //////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
 vector <string> Node::split( const string& line ){
-  stringstream ss( line );
+  std::stringstream ss( line );
   string bufr;
   vector <string> words;
   while( ss >> bufr ){
@@ -29,31 +29,28 @@ vector <string> Node::split( const string& line ){
   return words;
 }
 //////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-// tables and stuff
-//////////////////////////////////////////////////////
-void initialize() {
-  Figure::initialize();
-  Bitboard::initialize();
+bool Node::undafire( off_t off, clr_t clr ) const {
+  // Short range
+  auto satt = att[ clr | SRANG ];
+  if( satt.isset( off )){ return true; }
+  return false;
 }
 //////////////////////////////////////////////////////
 }
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+using namespace config;
 //////////////////////////////////////////////////////
 int main() {
-  using namespace config;
-  initialize();
-  if( 0 ){
+  Bitboard::initialize();
+  Figure::initialize();         
+  if( 1 ){
     Node node;
-    auto src = Bitboard::getoff( "e4" );
-    auto rank = Bitboard::getrank( src );
-    auto file = Bitboard::getfile( src );
-    node.insert_coin( 'k', rank, file );
-    cout << node << nl;
-    auto dst = Bitboard::getoff( "f5" );
-    Move mov;
-    mov.data = Move::pack( src, dst, Move::CAP );
-    node.movefwd( mov );
-    cout << node << nl;
+    node.insert_coin( 'K', 4, 5 );
+    node.insert_coin( 'k', 2, 3 );
+    cout << Search( node ).perft( 2 ) << nl;
   } else {
     ComsatStation().Launch();
   }
@@ -62,20 +59,7 @@ int main() {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
-// + getoff( "e4" )
-// + set( "d5" )
-// + unset
-// + move to Bitboard.h[cc]
-// + Node::insert_coin
-// + Node << operator
-//   + Figure type to char
-// - move fwd
-//   + units
-//   + Move
-//     + Biborard getcoord
-//     + Move << operator
-//   + liftoff
-//   + teleport
-// + command com
-// - movebwd
-// - captures
+// log:
+// + attacks
+// + genki
+// - search

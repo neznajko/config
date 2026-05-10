@@ -5,11 +5,40 @@
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
-using    i8 = int8_t;
-using    u8 = uint8_t;
-using   u16 = uint16_t;
-using   u64 = uint64_t;
+using  i8 = int8_t;
+using i32 = int32_t;
+//////////////////////////////////////////////////////
+using  u8 = uint8_t;
+using u16 = uint16_t;
+using u64 = uint64_t;
+//////////////////////////////////////////////////////
 using off_t = i8;
+//////////////////////////////////////////////////////
+//  BLACK          WHITE
+// 0 0000 SRANG   8 1000
+// 1 0001 KING    9 1001
+// 2 0010 KNIGHT 10 1010
+// 3 0011 PAWN   11 1011
+// 4 0100 LRANG  12 1100
+// 5 0101 QUEEN  13 1101
+// 6 0110 ROOK   14 1110
+// 7 0111 BISHOP 15 1111
+enum {
+  NIL,KING,KNIGHT,PAWN,
+  NOP,QUEEN,ROOK,BISHOP,
+  
+  BLACK=0,WHITE=8,
+
+  SRANG=NIL,LRANG=NOP
+};
+//////////////////////////////////////////////////////
+using figtype_t = i32;  
+using fig_t = figtype_t;
+using clr_t = figtype_t;
+//////////////////////////////////////////////////////
+constexpr i32 NFIG = 8;
+constexpr i32 NCLR = 2;
+constexpr i32 NTYP = NCLR * NFIG;  
 //////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////
