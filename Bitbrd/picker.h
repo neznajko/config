@@ -8,16 +8,17 @@
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
-struct Picker { //
-  
-  static constexpr int STKCAP = 64;
+struct Picker {
+  static constexpr int CAPSTK = 64;
 
-  array<Move,STKCAP> stk; // 128 B
+  array<Move,CAPSTK> stk;
 
   int T = 0;
   int j = 0;
 
-  const Node* node;
+  Node* node;
+  Bitboard empty_squares;
+  Bitboard pasv_army;
 
   bool has_next() const {
     return ( j < T );
@@ -34,15 +35,13 @@ struct Picker { //
   void clear() {
     j = T = 0;
   }
-  void generate( const Node* node ){
-    this->node = node;
-    clear();
-    genki();
-  }
   int size() const {
     return T;
   }
+  
+  void generate( Node* node );
   void genki();
+  void genni();
 };
 //////////////////////////////////////////////////////
 }

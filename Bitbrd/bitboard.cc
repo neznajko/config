@@ -7,19 +7,21 @@ namespace config {
 //////////////////////////////////////////////////////
 constexpr auto SIZ = Bitboard::SIZ;
 //////////////////////////////////////////////////////
-array<Bitboard,SIZ> Bitboard::KING_ATTACKS;
+array<Bitboard,SIZ> Bitboard::KATT;
+array<Bitboard,SIZ> Bitboard::NATT;
 array<array<Bitboard,SIZ>,NTYP> Bitboard::ATT;
 Bitboard Bitboard::OMEGA( -1 );
 array<array<Bitboard,SIZ>,SIZ> Bitboard::PLUS;
 //////////////////////////////////////////////////////
 void Bitboard::initialize() {
   for( off_t k = 0; k < SIZ; ++k ){
-    BITMASK[k] = 1ULL << k;
+    BITMASK[k] = ( 1ULL << k );
   }
   initialize_king_attacks();
+  initialize_knight_attacks();
   initialize_plus();
-  ATT[ BLACK | KING ] = KING_ATTACKS;
-  ATT[ WHITE | KING ] = KING_ATTACKS;
+  ATT[ BLACK | KING ] = ATT[ WHITE | KING ] = KATT;
+  ATT[ BLACK | KNIGHT ] = ATT[ WHITE | KNIGHT ] = NATT;
 }
 //////////////////////////////////////////////////////
 using Paint = std::pair<int,int>;
@@ -32,19 +34,35 @@ bool inbounds( off_t rank, off_t file ){
 }
 //////////////////////////////////////////////////////
 void Bitboard::initialize_king_attacks() {
-  static constexpr array<Paint,8> compass = {{
+  static constexpr array<Paint,8> COMPASS = {{
     { 1,-1},{ 1, 0},{ 1, 1},
     { 0,-1},        { 0, 1},
     {-1,-1},{-1, 0},{-1, 1}
   }};
   for( off_t y = 0; y < DIM; ++y ){
-    for( off_t x = 0; x < DIM; ++x ){
-      auto i = getoff( y, x );
-      for( auto [dy,dx]: compass ){
-        if( !inbounds( y + dy, x + dx )){ continue; }
-        auto j = getoff( y + dy, x + dx );
-        KING_ATTACKS[ i ].set( j );
-      }}}}
+  for( off_t x = 0; x < DIM; ++x ){
+    auto i = getoff( y, x );
+    for( auto [dy,dx]: COMPASS ){
+      if( !inbounds( y + dy, x + dx )){ continue; }
+      auto j = getoff( y + dy, x + dx );
+      KATT[ i ].set( j );
+    }}}}
+//////////////////////////////////////////////////////
+void Bitboard::initialize_knight_attacks() {
+  static constexpr array<Paint,8> COMPASS = {{
+    {+2,-1},{+2,+1},
+    {+1,-2},{+1,+2},
+    {-1,-2},{-1,+2},
+    {-2,-1},{-2,+1}      
+  }};
+  for( off_t y = 0; y < DIM; ++y ){
+  for( off_t x = 0; x < DIM; ++x ){
+    auto i = getoff( y, x );
+    for( auto [dy,dx]: COMPASS ){
+      if( !inbounds( y + dy, x + dx )){ continue; }
+      auto j = getoff( y + dy, x + dx );
+      NATT[ i ].set( j );
+    }}}}
 //////////////////////////////////////////////////////
 void Bitboard::initialize_plus() {
   for( off_t i = 0; i < SIZ; ++i ){
@@ -68,16 +86,16 @@ void Bitboard::initialize_plus() {
   }}
 }
 //////////////////////////////////////////////////////
-Bitboard operator|( const Bitboard& lhs,
-                    const Bitboard& rhs ){
+Bitboard
+operator|( const Bitboard& lhs, const Bitboard& rhs ){
   return Bitboard( lhs.board | rhs.board );
 }
-Bitboard operator^( const Bitboard& lhs,
-                    const Bitboard& rhs ){
+Bitboard 
+operator^( const Bitboard& lhs, const Bitboard& rhs ){
   return Bitboard( lhs.board ^ rhs.board );
 }
-Bitboard operator&( const Bitboard& lhs,
-                    const Bitboard& rhs ){
+Bitboard
+operator&( const Bitboard& lhs, const Bitboard& rhs ){
   return Bitboard( lhs.board & rhs.board );
 }
 Bitboard operator~( const Bitboard& rhs ){

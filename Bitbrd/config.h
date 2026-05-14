@@ -24,10 +24,10 @@ struct Figure {
   inline static array<fig_t,num('s')> TAB = {};
 
   static clr_t getclr( char f ){
-    static const clr_t CLR[] = {
+    static constexpr clr_t COLOUR[] = {
       BLACK, WHITE
     };
-    return CLR[ !!std::isupper( f )];
+    return COLOUR[ !!std::isupper( f )];
   }
   static fig_t getfig( char f ){
     return TAB[ num( std::tolower( f ))];
@@ -35,21 +35,14 @@ struct Figure {
   static figtype_t pack( clr_t clr, fig_t fig ){
     return ( clr | fig );
   }
-  static char getchar( figtype_t type ){
-    static const string chars = ".knp.qrb.KNP.QRB";
-    return chars[ type ];
+  static char getchar( figtype_t ft ){
+    static const string CHARS = ".knp.qrb.KNP.QRB";
+    return CHARS[ ft ];
   }
-  static clr_t getclr( figtype_t type ){
-    return ( type & WHITE );
-  }
-  // 12 is 1100 in binary
-  static figtype_t range( figtype_t type ){
-    return ( type & 12 );
-  }
+
   // TAB
   static void initialize();
 };
-
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////[ Node ]
@@ -72,31 +65,36 @@ struct Node {
     const auto off = Bitboard::getoff( rank, file );
     land( Figure::pack( clr, fig ), off );
   }
-  void setbit( figtype_t type, off_t off ){
-    units[ type ].set( off );
-    units[ Figure::getclr( type )].set( off );
-    establish_att( type, off );
+  void insert_coin( char f, string sq ){
+    const auto off = Bitboard::getoff( sq );
+    return insert_coin( f, Bitboard::getrank( off ),
+                           Bitboard::getfile( off ));
   }
-  void unsetbit( figtype_t type, off_t off ){
-    units[ type ].unset( off );
-    units[ Figure::getclr( type )].unset( off );
-    reestablish_att( type );
+  void setbit( figtype_t ft, off_t off ){
+    units[ ft ].set( off );
+    units[ ft & CLR ].set( off ); // occupancy
+    establish_att( ft, off );
   }
-  void land( figtype_t type, off_t off ){
-    setbit( type, off );
-    lookup[ off ] = type;
+  void unsetbit( figtype_t ft, off_t off ){
+    units[ ft ].unset( off );
+    units[ ft & CLR ].unset( off );
+    reestablish_att( ft );
+  }
+  void land( figtype_t ft, off_t off ){
+    setbit( ft, off );
+    lookup[ off ] = ft;
   }
   figtype_t liftoff( off_t off ){
-    const auto type = lookup[ off ];
-    unsetbit( type, off );
+    const auto ft = lookup[ off ];
+    unsetbit( ft, off );
     lookup[ off ] = NIL;
-    return type;
+    return ft;
   }
   // no lookup update
   figtype_t blastoff( off_t off ){
-    const auto type = lookup[ off ];
-    unsetbit( type, off );
-    return type;
+    const auto ft = lookup[ off ];
+    unsetbit( ft, off );
+    return ft;
   }
   // teleportation routine
   void teleport( off_t src, off_t dst ){
@@ -133,32 +131,13 @@ struct Node {
     flip_the_switch();
   }
   void flip_the_switch() {
-    the_switch ^= WHITE;
-  }
-  void establish_att( figtype_t type, off_t off ){
-    att[ type ] |= Bitboard::ATT[ type ][ off ];
-    att[ Figure::range( type )] |=
-      Bitboard::ATT[ type ][ off ];
-  }
-  void reestablish_att( figtype_t type ){
-    // - Here I'm afraid, my dear Watson, we have to
-    // reestablish the attack maps!!
-    att[ type ].clear();
-    auto pos = units[ type ];
-    off_t off;
-    while(( off = pos.lpop()) >= 0 ){
-      att[ type ] |= Bitboard::ATT[ type ][ off ];
-    }
-    auto range = Figure::range( type );
-    att[ range ] = ( att[ range | 0x01 ] |
-                     att[ range | 0x10 ] |
-                     att[ range | 0x11 ]);
+    the_switch ^= CLR;
   }
   clr_t actv() const {
     return the_switch;
   }
   clr_t pasv() const {
-    return the_switch ^ WHITE;
+    return the_switch ^ CLR;
   }
   Bitboard all() const {
     return ( units[ BLACK ] | units[ WHITE ]);
@@ -167,7 +146,10 @@ struct Node {
     return ~all();
   }
   
+  void establish_att( figtype_t type, off_t off );
+  void reestablish_att( figtype_t type );
   bool undafire( off_t off, clr_t clr ) const;
+  bool islegal( Move mov );
 };
 //////////////////////////////////////////////////////
 }

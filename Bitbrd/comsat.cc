@@ -72,10 +72,7 @@ void Undo::exec( const vector <string> &args ){
 void Insert::exec( const vector <string> &args ){
   char c = args[ 1 ][ 0 ]; // n
   const string& sqr = args[ 2 ]; // e4
-  auto off = Bitboard::getoff( sqr );
-  auto i = Bitboard::getrank( off );
-  auto j = Bitboard::getfile( off );
-  comsat.node.insert_coin( c, i, j );
+  comsat.node.insert_coin( c, sqr );
 }
 //////////////////////////////////////////////////////
 // > select e4

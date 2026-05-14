@@ -40,7 +40,8 @@ struct Bitboard {
   static constexpr off_t SIZ = DIM << POW; // size
    
   inline static array<u64,SIZ> BITMASK = {};
-  static array<Bitboard,SIZ> KING_ATTACKS;
+  static array<Bitboard,SIZ> KATT;
+  static array<Bitboard,SIZ> NATT;
   static array<array<Bitboard,SIZ>,NTYP> ATT;
   static Bitboard OMEGA;
   static array<array<Bitboard,SIZ>,SIZ> PLUS;
@@ -101,11 +102,16 @@ struct Bitboard {
   void clear() {
     board = 0;
   }
-  bool isset( off_t off ){
-    return BITMASK[ off ] & board;
+  bool isset( off_t off ) const {
+    return ( BITMASK[ off ] & board );
   }
+  bool empty() const {
+    return !board;
+  }
+
   // BITMASK, ATTACKS and STUFF
   static void initialize_king_attacks();
+  static void initialize_knight_attacks();
   static void initialize_plus();
   static void initialize();
 };

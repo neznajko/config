@@ -41,19 +41,19 @@ ostream& operator<<( ostream& s, const Node& node ){
   s << " [" << name[!!node.the_switch] << "]         "
     << "occ[B]   "
     << "occ[W]   "
-    << "srang[B] "
-    << "srang[W] "
-    << "lrang[B] "
-    << "lrang[W] "
+    << "srng[B]  "
+    << "srng[W]  "
+    << "lrng[B]  "
+    << "lrng[W]  "
     << nl;
   for( off_t i = Bitboard::DIM - 1; i >= 0; --i ){
     s << rank( i, node ) << sp
       << rank( i, node.units[ BLACK ]) << sp
       << rank( i, node.units[ WHITE ]) << sp
-      << rank( i, node.att[ SRANG ]) << sp
-      << rank( i, node.att[ WHITE | SRANG ]) << sp
-      << rank( i, node.att[ LRANG ]) << sp
-      << rank( i, node.att[ WHITE | LRANG ])
+      << rank( i, node.att[ SRNG ]) << sp
+      << rank( i, node.att[ WHITE | SRNG ]) << sp
+      << rank( i, node.att[ LRNG ]) << sp
+      << rank( i, node.att[ WHITE | LRNG ])
       << nl;
   }
   return s;

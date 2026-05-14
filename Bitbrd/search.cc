@@ -1,15 +1,13 @@
 //////////////////////////////////////////////////////
 # include "search.h"
 # include "picker.h"
-# include "io.h"
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
-u64 Search::perft( u8 depth ){
-  cout << node << nl;
+u64 Search::perft( u8 depth ){ // depth > 0
   Picker picker;
   picker.generate( &node );
-  if( depth == 1 ){ return picker.size(); }
+  if( depth < 2 ){ return picker.size(); }
   u64 n = 0;
   while( picker.has_next()){
     auto mov = picker.next();
