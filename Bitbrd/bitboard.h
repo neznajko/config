@@ -42,9 +42,11 @@ struct Bitboard {
   inline static array<u64,SIZ> BITMASK = {};
   static array<Bitboard,SIZ> KATT;
   static array<Bitboard,SIZ> NATT;
+  static array<Bitboard,SIZ> RATT;
   static array<array<Bitboard,SIZ>,NTYP> ATT;
   static Bitboard OMEGA;
   static array<array<Bitboard,SIZ>,SIZ> PLUS;
+  static array<array<Bitboard,SIZ>,8> ATTACK_VECTORS;
 
   u64 board;
 
@@ -93,11 +95,23 @@ struct Bitboard {
     board ^= rhs.board;
     return *this;
   }
-  off_t lpop() {
-    if( !board ){ return -1; }
+  off_t popl() {
     auto off = __builtin_ctzll( board );
     unset( off );
     return off;
+  }
+  off_t lpop() {
+    if( !board ){ return -1; }
+    return popl();
+  }
+  off_t popm() {
+    auto off = 63 - __builtin_clzll( board );
+    unset( off );
+    return off;
+  }
+  off_t mpop() {
+    if( !board ){ return -1; }
+    return popm();
   }
   void clear() {
     board = 0;
@@ -112,6 +126,7 @@ struct Bitboard {
   // BITMASK, ATTACKS and STUFF
   static void initialize_king_attacks();
   static void initialize_knight_attacks();
+  static void initialize_rook_attacks();
   static void initialize_plus();
   static void initialize();
 };

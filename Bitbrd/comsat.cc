@@ -4,6 +4,7 @@
 //////////////////////////////////////////////////////
 # include "io.h"
 # include "comsat.h"
+# include "picker.h"
 //////////////////////////////////////////////////////
 namespace config {
 //////////////////////////////////////////////////////
@@ -77,24 +78,22 @@ void Insert::exec( const vector <string> &args ){
 //////////////////////////////////////////////////////
 // > select e4
 void Select::exec( const vector <string> &args ){
-  /*
   auto& node = comsat.node;
 
   const auto sqr = args[ 1 ];
-  const auto pos = Board::get_pos( sqr );
-  const auto unit = node.board[ pos ];
-  
+  const auto off = Bitboard::getoff( sqr );
+  const auto unit = node.lookup[ off ];
   if( unit ){
-    vector <Move> movs;
-    node.get_unit_moves( unit, movs );
-    cout << movs << nl;
+    Picker picker;
+    picker.generate( &node );
+    cout << "moves: " << picker << nl;
   } else {
+    cout << "undafire: ";
     for( auto clr: { BLACK, WHITE }){
-      cout << Node::ArmyName[ clr ] << ": "
-           << node.under_attack( pos, clr ) << nl;
+      cout << node.undafire( off, clr ) << sp;
     }
+    cout << nl;
   }
-  */
 }
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////

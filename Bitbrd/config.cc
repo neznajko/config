@@ -67,8 +67,20 @@ bool Node::islegal( Move mov ){
 }
 //////////////////////////////////////////////////////
 bool Node::undafire( off_t off, clr_t clr ) const {
-  const auto shortrange = att[ clr | SRNG ];
-  if( shortrange.isset( off )){ return true; }
+  // short range
+  if( att[ clr | SRNG ].isset( off )){ return true; }
+  // long range
+  if(!att[ clr | LRNG ].isset( off )){ return false; }
+  off_t on;
+  auto occ = all();
+  // tscheck rooks
+  if( att[ clr | ROOK ].isset( off )){
+    auto rooks = units[ clr | ROOK ];
+    while(( on = rooks.lpop()) != -1 ){
+      auto cross = occ & Bitboard::PLUS[ on ][ off ];
+      if( cross.empty()){ return true; }
+    }
+  }
   return false;
 }
 //////////////////////////////////////////////////////
@@ -76,39 +88,29 @@ bool Node::undafire( off_t off, clr_t clr ) const {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 struct Tesuto {
-  static void islegal() {
-    Node node;
-    node.insert_coin( 'K', "b6" );
-    node.insert_coin( 'k', "g3" );
-    node.insert_coin( 'N', "e2" );
-    node.insert_coin( 'n', "d4" );
+  Node node;
+  Tesuto() {
+    node.insert_coin( 'K', "f8" );
+    node.insert_coin( 'k', "g2" );
+    node.insert_coin( 'r', "e4" );
     cout << node << nl;
-    auto src = Bitboard::getoff( "g3" );
-    auto dst = Bitboard::getoff( "f4" );
-    Move mov = { Move::pack( src, dst, Move::MOV )};
-    cout << mov << sp << node.islegal( mov ) << nl;
   }
-  static void generate() {
-    Node node;
-    node.insert_coin( 'K', "b6" );
-    node.insert_coin( 'k', "d4" );
-    node.insert_coin( 'n', "c3" );
-    node.insert_coin( 'N', "e2" );
-
-    cout << node << nl;
+  void ispasv() {
+    node.flip_the_switch();
+    auto off = Bitboard::getoff( "f5" );
+    cout << node.ispasv( off ) << nl;
+  }
+  void generate() {
     Picker picker;
     picker.generate( &node );
     cout << picker << nl;
   }
-  static void perft( u8 depth ) {
-    Node node;
-    node.insert_coin( 'K', "b6" );
-    node.insert_coin( 'k', "d4" );
-    node.insert_coin( 'n', "c3" );
-    node.insert_coin( 'N', "e2" );
-
-    cout << node << nl;
+  void perft( u8 depth ) {
     cout << Search( node ).perft( depth ) << nl;
+  }
+  void att() {
+    auto i = Bitboard::getoff( "f3" );
+    cout << Bitboard::RATT[i] << nl;
   }
 };
 //////////////////////////////////////////////////////
@@ -126,7 +128,7 @@ int main() {
   Bitboard::initialize();
   Figure::initialize();         
   if( 1 ){
-    Tesuto::perft( 6 );
+    Tesuto().perft( 6 );
   } else {
     ComsatStation().Launch();
   }
@@ -136,12 +138,4 @@ int main() {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 // log:
-// + attacks
-// + genki
-// + search
-// + review
-// + tesuto
-// + knight attacks
-// + islegal
-// + tesuto
-// + genni
+// + k and r vs K

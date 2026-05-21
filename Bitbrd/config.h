@@ -145,6 +145,9 @@ struct Node {
   Bitboard empty() const {
     return ~all();
   }
+  bool ispasv( off_t off ) const {
+    return (( CLR & lookup[ off ]) ^ the_switch );
+  }
   
   void establish_att( figtype_t type, off_t off );
   void reestablish_att( figtype_t type );

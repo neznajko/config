@@ -19,6 +19,7 @@ struct Picker {
   Node* node;
   Bitboard empty_squares;
   Bitboard pasv_army;
+  Bitboard occ;
 
   bool has_next() const {
     return ( j < T );
@@ -32,6 +33,11 @@ struct Picker {
   void push( off_t src, off_t dst, Move::type_t type ){
     push({ Move::pack( src, dst, type )});
   }
+  void check_and_push( off_t src, off_t dst,
+                       Move::type_t type ){
+    Move mov = { Move::pack( src, dst, type )};
+    if( node->islegal( mov )){ push( mov ); }
+  }
   void clear() {
     j = T = 0;
   }
@@ -42,6 +48,7 @@ struct Picker {
   void generate( Node* node );
   void genki();
   void genni();
+  void genro();
 };
 //////////////////////////////////////////////////////
 }

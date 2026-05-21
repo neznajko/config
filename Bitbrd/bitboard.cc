@@ -9,9 +9,11 @@ constexpr auto SIZ = Bitboard::SIZ;
 //////////////////////////////////////////////////////
 array<Bitboard,SIZ> Bitboard::KATT;
 array<Bitboard,SIZ> Bitboard::NATT;
+array<Bitboard,SIZ> Bitboard::RATT;
 array<array<Bitboard,SIZ>,NTYP> Bitboard::ATT;
 Bitboard Bitboard::OMEGA( -1 );
 array<array<Bitboard,SIZ>,SIZ> Bitboard::PLUS;
+array<array<Bitboard,SIZ>,8> Bitboard::ATTACK_VECTORS;
 //////////////////////////////////////////////////////
 void Bitboard::initialize() {
   for( off_t k = 0; k < SIZ; ++k ){
@@ -19,9 +21,11 @@ void Bitboard::initialize() {
   }
   initialize_king_attacks();
   initialize_knight_attacks();
+  initialize_rook_attacks();
   initialize_plus();
-  ATT[ BLACK | KING ] = ATT[ WHITE | KING ] = KATT;
+  ATT[ BLACK | KING   ] = ATT[ WHITE | KING   ] = KATT;
   ATT[ BLACK | KNIGHT ] = ATT[ WHITE | KNIGHT ] = NATT;
+  ATT[ BLACK | ROOK   ] = ATT[ WHITE | ROOK   ] = RATT;
 }
 //////////////////////////////////////////////////////
 using Paint = std::pair<int,int>;
@@ -63,6 +67,32 @@ void Bitboard::initialize_knight_attacks() {
       auto j = getoff( y + dy, x + dx );
       NATT[ i ].set( j );
     }}}}
+//////////////////////////////////////////////////////
+void Bitboard::initialize_rook_attacks() {
+  static constexpr dir_t NDIR = 4;
+  static constexpr array<Paint,NDIR> COMPASS = {{
+    {+1,0}, // North Pole
+    {0,+1}, // East 17
+    {-1,0}, // South Bidge
+    {0,-1}  // Westminster
+  }};
+  static constexpr array<dir_t,NDIR> DIR = {{
+    NORTH, EAST, SOUTH, WEST
+  }};
+  for( off_t y = 0; y < DIM; ++y ){
+  for( off_t x = 0; x < DIM; ++x ){
+    auto i = getoff( y, x );
+    for( dir_t k = 0; k < NDIR; ++k ){
+      auto [dy,dx] = COMPASS[ k ];
+      auto Y = y + dy;
+      auto X = x + dx;
+      while( inbounds( Y, X )){
+        auto j = getoff( Y, X );
+        RATT[ i ].set( j );
+        ATTACK_VECTORS[ DIR[ k ]][ i ].set( j );
+        Y += dy;
+        X += dx;
+      }}}}}
 //////////////////////////////////////////////////////
 void Bitboard::initialize_plus() {
   for( off_t i = 0; i < SIZ; ++i ){
