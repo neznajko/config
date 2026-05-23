@@ -9,7 +9,7 @@
 namespace config {
 //////////////////////////////////////////////////////
 struct Picker {
-  static constexpr int CAPSTK = 64;
+  static constexpr int CAPSTK = 128;
 
   array<Move,CAPSTK> stk;
 

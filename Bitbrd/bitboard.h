@@ -95,23 +95,15 @@ struct Bitboard {
     board ^= rhs.board;
     return *this;
   }
-  off_t popl() {
+  off_t lpop() {
     auto off = __builtin_ctzll( board );
     unset( off );
     return off;
   }
-  off_t lpop() {
-    if( !board ){ return -1; }
-    return popl();
-  }
-  off_t popm() {
+  off_t mpop() {
     auto off = 63 - __builtin_clzll( board );
     unset( off );
     return off;
-  }
-  off_t mpop() {
-    if( !board ){ return -1; }
-    return popm();
   }
   void clear() {
     board = 0;

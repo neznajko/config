@@ -44,9 +44,8 @@ void Node::reestablish_att( figtype_t ft ){
     // reestablish the attack maps!!
     att[ ft ].clear();
     auto pos = units[ ft ];
-    off_t off;
-    while(( off = pos.lpop()) != -1 ){
-      att[ ft ] |= Bitboard::ATT[ ft ][ off ];
+    while( !pos.empty( )){
+      att[ ft ] |= Bitboard::ATT[ ft ][ pos.lpop( )];
     }
     const auto range = ft & CLRNG;
     // 1 = 01 these are the masks for 
@@ -60,8 +59,7 @@ void Node::reestablish_att( figtype_t ft ){
 bool Node::islegal( Move mov ){
   movfwd( mov );
   auto king = units[ pasv() | KING ];
-  auto off = king.lpop();
-  auto uf = undafire( off, actv() );
+  auto uf = undafire( king.lpop(), actv( ));
   movbwd( mov );
   return !uf;
 }
@@ -76,9 +74,10 @@ bool Node::undafire( off_t off, clr_t clr ) const {
   // tscheck rooks
   if( att[ clr | ROOK ].isset( off )){
     auto rooks = units[ clr | ROOK ];
-    while(( on = rooks.lpop()) != -1 ){
-      auto cross = occ & Bitboard::PLUS[ on ][ off ];
-      if( cross.empty()){ return true; }
+    while( !rooks.empty( )){
+      auto cross =
+        occ & Bitboard::PLUS[ rooks.lpop( )][ off ];
+      if( cross.empty( )){ return true; }
     }
   }
   return false;
@@ -93,6 +92,13 @@ struct Tesuto {
     node.insert_coin( 'K', "f8" );
     node.insert_coin( 'k', "g2" );
     node.insert_coin( 'r', "e4" );
+    node.insert_coin( 'r', "a1" );
+    node.insert_coin( 'n', "g3" );
+    node.insert_coin( 'n', "c5" );
+    node.insert_coin( 'R', "g8" );
+    node.insert_coin( 'R', "c4" );
+    node.insert_coin( 'N', "c2" );
+    node.insert_coin( 'N', "h4" );
     cout << node << nl;
   }
   void ispasv() {
@@ -138,4 +144,10 @@ int main() {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 // log:
-// + k and r vs K
+// 
+// Fen: 5KR1/8/8/2n5/2R1r2N/6n1/2N3k1/r7 b - - 0 1
+// Dep: 6
+// Cnt: 132137057
+// real    0m5.196s
+// user    0m0.030s
+// sys     0m0.000s
