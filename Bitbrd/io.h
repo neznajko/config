@@ -19,7 +19,8 @@ constexpr char sp = ' ';
 struct Bitboard;
 struct Node;
 struct Move;
-struct Picker;  
+struct Picker;
+struct Tscheck;
 //////////////////////////////////////////////////////
 template <size_t N>
 string hex( u64 y ){
@@ -27,9 +28,10 @@ string hex( u64 y ){
 }
 //////////////////////////////////////////////////////
 ostream& operator<<( ostream& s, const Bitboard& b );
-ostream& operator<<( ostream& s, const Node& node );
-ostream& operator<<( ostream& s, const Move& move );
-ostream& operator<<( ostream& s, const Picker& p );
+ostream& operator<<( ostream& s, const Node&  node );
+ostream& operator<<( ostream& s, const Move&  move );
+ostream& operator<<( ostream& s, const Picker&   p );
+ostream& operator<<( ostream& s, const Tscheck&  t );
 //////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////

@@ -73,7 +73,7 @@ void Bitboard::initialize_rook_attacks() {
   static constexpr array<Paint,NDIR> COMPASS = {{
     {+1,0}, // North Pole
     {0,+1}, // East 17
-    {-1,0}, // South Bidge
+    {-1,0}, // South Bridge
     {0,-1}  // Westminster
   }};
   static constexpr array<dir_t,NDIR> DIR = {{

@@ -31,7 +31,8 @@ enum {
 
   SRNG=NIL,LRNG=NOP,
 
-  CLR=WHITE,RNG=NOP,CLRNG=CLR|RNG
+  CLR=WHITE,FIG=BISHOP,
+  RNG=NOP,CLRNG=CLR|RNG
 };
 //////////////////////////////////////////////////////
 using figtype_t = i32;  

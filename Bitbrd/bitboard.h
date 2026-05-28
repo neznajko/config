@@ -105,10 +105,25 @@ struct Bitboard {
     unset( off );
     return off;
   }
+  off_t lpeek() {
+    return __builtin_ctzll( board );
+  }
+  off_t mpeek() {
+    return ( 63 - __builtin_clzll( board ));
+  }
+  // depending on the circumstances
+  template <dir_t DIR>
+  off_t peek() {
+    if constexpr ( DIR == NORTH or DIR == EAST ){
+      return lpeek();
+    } else {
+      return mpeek();
+    }
+  }
   void clear() {
     board = 0;
   }
-  bool isset( off_t off ) const {
+  bool iset( off_t off ) const {
     return ( BITMASK[ off ] & board );
   }
   bool empty() const {

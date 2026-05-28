@@ -50,8 +50,8 @@ struct Figure {
 struct Node {
   static vector <string> split( const string& line );
   
-  // units[ clr | NIL ] - occupancy
-  array<Bitboard,NTYP> units;
+  // occ[ clr | NIL ] - occupancy
+  array<Bitboard,NTYP> occ;
   // att[ clr | NIL ] - shortrange attacks
   // att[ clr | NOP ] - longrange attacks
   array<Bitboard,NTYP> att;
@@ -71,13 +71,13 @@ struct Node {
                            Bitboard::getfile( off ));
   }
   void setbit( figtype_t ft, off_t off ){
-    units[ ft ].set( off );
-    units[ ft & CLR ].set( off ); // occupancy
+    occ[ ft ].set( off );
+    occ[ ft & CLR ].set( off ); // occupancy
     establish_att( ft, off );
   }
   void unsetbit( figtype_t ft, off_t off ){
-    units[ ft ].unset( off );
-    units[ ft & CLR ].unset( off );
+    occ[ ft ].unset( off );
+    occ[ ft & CLR ].unset( off );
     reestablish_att( ft );
   }
   void land( figtype_t ft, off_t off ){
@@ -140,19 +140,41 @@ struct Node {
     return the_switch ^ CLR;
   }
   Bitboard all() const {
-    return ( units[ BLACK ] | units[ WHITE ]);
+    return ( occ[ BLACK ] | occ[ WHITE ]);
   }
   Bitboard empty() const {
     return ~all();
   }
+  clr_t getclr( off_t off ) const {
+    return ( CLR & lookup[ off ]);
+  }
+  fig_t getfig( off_t off ) const {
+    return ( FIG & lookup[ off ]);
+  }
   bool ispasv( off_t off ) const {
-    return (( CLR & lookup[ off ]) ^ the_switch );
+    return ( getclr( off ) ^ the_switch );
+  }
+  template <dir_t DIR>
+  void scan_plus( off_t off, Bitboard& cap ){
+    auto cross = Bitboard::ATTACK_VECTORS[ DIR ][ off ] & all();
+    if( cross.empty( )){ return; }
+    auto on = cross.peek<DIR>();
+    if( lookup[on] == ( actv()|ROOK )){
+      cap.set( on );
+    }
   }
   
   void establish_att( figtype_t type, off_t off );
   void reestablish_att( figtype_t type );
   bool undafire( off_t off, clr_t clr ) const;
   bool islegal( Move mov );
+  // Return a bitboard with all pieces that can 
+  // capture on off, note that this is used in move
+  // generation so king captures are excluded cos
+  // king moves are generated beforehand, so at off
+  // usually we have a checking piece that has to be
+  // captured so we check that
+  Bitboard capturing( off_t off );
 };
 //////////////////////////////////////////////////////
 }

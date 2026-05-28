@@ -43,7 +43,7 @@ void Node::reestablish_att( figtype_t ft ){
     // - Here I'm afraid, my dear Watson, we have to
     // reestablish the attack maps!!
     att[ ft ].clear();
-    auto pos = units[ ft ];
+    auto pos = occ[ ft ];
     while( !pos.empty( )){
       att[ ft ] |= Bitboard::ATT[ ft ][ pos.lpop( )];
     }
@@ -58,31 +58,45 @@ void Node::reestablish_att( figtype_t ft ){
 //////////////////////////////////////////////////////
 bool Node::islegal( Move mov ){
   movfwd( mov );
-  auto king = units[ pasv() | KING ];
-  auto uf = undafire( king.lpop(), actv( ));
+  bool uf{ undafire(occ[pasv()|KING].lpeek(),actv( ))};
   movbwd( mov );
   return !uf;
 }
 //////////////////////////////////////////////////////
 bool Node::undafire( off_t off, clr_t clr ) const {
   // short range
-  if( att[ clr | SRNG ].isset( off )){ return true; }
+  if( att[ clr|SRNG ].iset( off )){ return true; }
   // long range
-  if(!att[ clr | LRNG ].isset( off )){ return false; }
-  off_t on;
-  auto occ = all();
+  if(!att[ clr|LRNG ].iset( off )){ return false; }
+  const auto all = this->all();
   // tscheck rooks
-  if( att[ clr | ROOK ].isset( off )){
-    auto rooks = units[ clr | ROOK ];
+  if( att[ clr|ROOK ].iset( off )){
+    auto rooks = occ[ clr|ROOK ];
     while( !rooks.empty( )){
-      auto cross =
-        occ & Bitboard::PLUS[ rooks.lpop( )][ off ];
-      if( cross.empty( )){ return true; }
+      // OMEGA
+      if(( all & Bitboard::PLUS[ rooks.lpop( )][ off ])
+          .empty( )){ return true; }
     }
   }
   return false;
 }
 //////////////////////////////////////////////////////
+// one wise observation that the color of the piece at
+// off is always passive ryte i mean only active color
+// can capture  
+Bitboard Node::capturing( off_t off ){
+  Bitboard cap;
+  // put a knight attacks at off and mask with active
+  // knights positions
+  cap |= Bitboard::NATT[ off ] & occ[ actv()|KNIGHT ];
+  // avtivate the lazers in each direction and peek if
+  // there is an active rook or queen
+  scan_plus<NORTH>( off, cap ); // NORTH( POLE )
+  scan_plus<EAST>(  off, cap ); // EAST 17
+  scan_plus<SOUTH>( off, cap ); // SOUTH BRIDGE
+  scan_plus<WEST>(  off, cap ); // WESTMINISTER
+  return cap;
+}
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -90,33 +104,24 @@ struct Tesuto {
   Node node;
   Tesuto() {
     node.insert_coin( 'K', "f8" );
+    node.insert_coin( 'N', "f4" );
     node.insert_coin( 'k', "g2" );
-    node.insert_coin( 'r', "e4" );
-    node.insert_coin( 'r', "a1" );
-    node.insert_coin( 'n', "g3" );
-    node.insert_coin( 'n', "c5" );
-    node.insert_coin( 'R', "g8" );
-    node.insert_coin( 'R', "c4" );
-    node.insert_coin( 'N', "c2" );
-    node.insert_coin( 'N', "h4" );
+    node.insert_coin( 'n', "e2" );
+    node.insert_coin( 'r', "f7" );
     cout << node << nl;
   }
-  void ispasv() {
-    node.flip_the_switch();
-    auto off = Bitboard::getoff( "f5" );
-    cout << node.ispasv( off ) << nl;
-  }
-  void generate() {
+  void generate_all_moves() {
     Picker picker;
-    picker.generate( &node );
+    picker.generate_all_moves( &node );
     cout << picker << nl;
   }
   void perft( u8 depth ) {
     cout << Search( node ).perft( depth ) << nl;
   }
-  void att() {
-    auto i = Bitboard::getoff( "f3" );
-    cout << Bitboard::RATT[i] << nl;
+  void capturing( off_t off ) {
+    cout << "capturing on "
+         << Bitboard::getname( off ) << nl;
+    cout << node.capturing( off );
   }
 };
 //////////////////////////////////////////////////////
@@ -134,7 +139,7 @@ int main() {
   Bitboard::initialize();
   Figure::initialize();         
   if( 1 ){
-    Tesuto().perft( 6 );
+    Tesuto().capturing( Bitboard::getoff( "f4" ));
   } else {
     ComsatStation().Launch();
   }

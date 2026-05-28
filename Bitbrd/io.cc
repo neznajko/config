@@ -48,8 +48,8 @@ ostream& operator<<( ostream& s, const Node& node ){
     << nl;
   for( off_t i = Bitboard::DIM - 1; i >= 0; --i ){
     s << rank( i, node ) << sp
-      << rank( i, node.units[ BLACK ]) << sp
-      << rank( i, node.units[ WHITE ]) << sp
+      << rank( i, node.occ[ BLACK ]) << sp
+      << rank( i, node.occ[ WHITE ]) << sp
       << rank( i, node.att[ SRNG ]) << sp
       << rank( i, node.att[ WHITE | SRNG ]) << sp
       << rank( i, node.att[ LRNG ]) << sp
@@ -78,9 +78,16 @@ ostream& operator<<( ostream& s, const Picker& p ){
   return s << "]";
 }
 //////////////////////////////////////////////////////
+ostream& operator<<( ostream& s, const Tscheck& t ){
+  s << t.cntr << sp;
+  if( t.cntr ){
+    s << Bitboard::getname(t.checking_piece_offset);
+  }
+  return ( s << nl << t.pinned_pieces );
+}
+//////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
-
