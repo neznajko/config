@@ -79,11 +79,12 @@ ostream& operator<<( ostream& s, const Picker& p ){
 }
 //////////////////////////////////////////////////////
 ostream& operator<<( ostream& s, const Tscheck& t ){
-  s << t.cntr << sp;
+  s << "checks: " << t.cntr << sp;
   if( t.cntr ){
     s << Bitboard::getname(t.checking_piece_offset);
   }
-  return ( s << nl << t.pinned_pieces );
+  return s << nl << "pinned:\n" << t.pinned
+           << nl << "pinners:\n" << t.pinners;
 }
 //////////////////////////////////////////////////////
 }

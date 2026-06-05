@@ -154,6 +154,7 @@ struct Node {
   bool ispasv( off_t off ) const {
     return ( getclr( off ) ^ the_switch );
   }
+  // scan if active rook/queen can be deployed at off
   template <dir_t DIR>
   void scan_plus( off_t off, Bitboard& cap ){
     auto cross = Bitboard::ATTACK_VECTORS[ DIR ][ off ] & all();
@@ -168,13 +169,7 @@ struct Node {
   void reestablish_att( figtype_t type );
   bool undafire( off_t off, clr_t clr ) const;
   bool islegal( Move mov );
-  // Return a bitboard with all pieces that can 
-  // capture on off, note that this is used in move
-  // generation so king captures are excluded cos
-  // king moves are generated beforehand, so at off
-  // usually we have a checking piece that has to be
-  // captured so we check that
-  Bitboard capturing( off_t off );
+  Bitboard deploy( off_t off );
 };
 //////////////////////////////////////////////////////
 }

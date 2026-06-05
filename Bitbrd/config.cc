@@ -81,47 +81,43 @@ bool Node::undafire( off_t off, clr_t clr ) const {
   return false;
 }
 //////////////////////////////////////////////////////
-// one wise observation that the color of the piece at
-// off is always passive ryte i mean only active color
-// can capture  
-Bitboard Node::capturing( off_t off ){
-  Bitboard cap;
+Bitboard Node::deploy( off_t off ){
+  Bitboard units;
   // put a knight attacks at off and mask with active
   // knights positions
-  cap |= Bitboard::NATT[ off ] & occ[ actv()|KNIGHT ];
+  // KNIGHTS
+  units |= Bitboard::NATT[ off ] & occ[ actv()|KNIGHT ];
   // avtivate the lazers in each direction and peek if
   // there is an active rook or queen
-  scan_plus<NORTH>( off, cap ); // NORTH( POLE )
-  scan_plus<EAST>(  off, cap ); // EAST 17
-  scan_plus<SOUTH>( off, cap ); // SOUTH BRIDGE
-  scan_plus<WEST>(  off, cap ); // WESTMINISTER
-  return cap;
+  // ROOKS and QUEENS
+  scan_plus<NORTH>( off, units ); // NORTH( POLE )
+  scan_plus<EAST>(  off, units ); // EAST 17
+  scan_plus<SOUTH>( off, units ); // SOUTH BRIDGE
+  scan_plus<WEST>(  off, units ); // WESTMINISTER
+  // BISHOPS and QUEENS
+  // PAWNS
+  return units;
 }
+//////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 struct Tesuto {
   Node node;
-  Tesuto() {
-    node.insert_coin( 'K', "f8" );
-    node.insert_coin( 'N', "f4" );
-    node.insert_coin( 'k', "g2" );
-    node.insert_coin( 'n', "e2" );
-    node.insert_coin( 'r', "f7" );
+  Tesuto( ){
+    node.insert_coin( 'K', "e8" );
+    node.insert_coin( 'R', "a4" );
+    node.insert_coin( 'k', "e4" );
+    node.insert_coin( 'n', "c4" );
     cout << node << nl;
   }
-  void generate_all_moves() {
+  void perft( u8 depth ){
+    cout << Search( node ).perft( depth ) << nl;
+  }
+  void generate_all_moves( ){
     Picker picker;
     picker.generate_all_moves( &node );
     cout << picker << nl;
-  }
-  void perft( u8 depth ) {
-    cout << Search( node ).perft( depth ) << nl;
-  }
-  void capturing( off_t off ) {
-    cout << "capturing on "
-         << Bitboard::getname( off ) << nl;
-    cout << node.capturing( off );
   }
 };
 //////////////////////////////////////////////////////
@@ -138,8 +134,8 @@ using namespace config;
 int main() {
   Bitboard::initialize();
   Figure::initialize();         
-  if( 1 ){
-    Tesuto().capturing( Bitboard::getoff( "f4" ));
+  if( 0 ){
+    Tesuto().generate_all_moves();             
   } else {
     ComsatStation().Launch();
   }
@@ -156,3 +152,18 @@ int main() {
 // real    0m5.196s
 // user    0m0.030s
 // sys     0m0.000s
+//
+//  /// / /// /// /// /// /// /// / / /// /// / /// ///
+// ### # ### ### ### ### ### ### # # ### ### # ### ###
+// = = = = = = = = = =   =   = = === = = = =   =   = =
+// ~~~ ~ ~~~ ~ ~ ~ ~ ~~~ ~   ~~~ ~ ~ ~~~ ~~~ ~ ~~~ ~ ~
+// -   - - - - - - - -   -   - - - - -   - - - - - - -
+// .   . . . . . ... .   ... . . . . .   . . . ... . .
+//
+// + tesuto    - Write a routine that takes a target
+//   + knight    square off and returns bitboard with
+//   + rook      all active pices that can land there
+// + insert some unbound rook
+// + go into unbound level, get rooks - pinned
+// + rename pinners and pinned to smth else
+//////////////////////////////////////////////////////

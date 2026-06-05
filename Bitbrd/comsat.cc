@@ -80,14 +80,14 @@ void Insert::exec( const vector <string> &args ){
 void Select::exec( const vector <string> &args ){
   auto& node = comsat.node;
 
-  const auto sqr = args[ 1 ];
-  const auto off = Bitboard::getoff( sqr );
-  const auto unit = node.lookup[ off ];
-  if( unit ){
+  if( args.size() <= 1 ){
     Picker picker;
-    picker.generate( &node );
+    picker.generate_all_moves( &node );
     cout << "moves: " << picker << nl;
   } else {
+    const auto sqr = args[ 1 ];
+    const auto off = Bitboard::getoff( sqr );
+    const auto unit = node.lookup[ off ];
     cout << "undafire: ";
     for( auto clr: { BLACK, WHITE }){
       cout << node.undafire( off, clr ) << sp;
