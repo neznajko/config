@@ -38,7 +38,7 @@ bool inbounds( off_t rank, off_t file ){
 }
 //////////////////////////////////////////////////////
 void Bitboard::initialize_king_attacks() {
-  static constexpr array<Paint,8> COMPASS = {{
+  static constexpr array<Paint,WDIR> COMPASS = {{
     { 1,-1},{ 1, 0},{ 1, 1},
     { 0,-1},        { 0, 1},
     {-1,-1},{-1, 0},{-1, 1}
@@ -53,7 +53,7 @@ void Bitboard::initialize_king_attacks() {
     }}}}
 //////////////////////////////////////////////////////
 void Bitboard::initialize_knight_attacks() {
-  static constexpr array<Paint,8> COMPASS = {{
+  static constexpr array<Paint,WDIR> COMPASS = {{
     {+2,-1},{+2,+1},
     {+1,-2},{+1,+2},
     {-1,-2},{-1,+2},
@@ -69,20 +69,19 @@ void Bitboard::initialize_knight_attacks() {
     }}}}
 //////////////////////////////////////////////////////
 void Bitboard::initialize_rook_attacks() {
-  static constexpr dir_t NDIR = 4;
-  static constexpr array<Paint,NDIR> COMPASS = {{
+  static constexpr array<Paint,RDIR> COMPASS = {{
     {+1,0}, // North Pole
     {0,+1}, // East 17
     {-1,0}, // South Bridge
     {0,-1}  // Westminster
   }};
-  static constexpr array<dir_t,NDIR> DIR = {{
+  static constexpr array<dir_t,RDIR> DIR = {{
     NORTH, EAST, SOUTH, WEST
   }};
   for( off_t y = 0; y < DIM; ++y ){
   for( off_t x = 0; x < DIM; ++x ){
     auto i = getoff( y, x );
-    for( dir_t k = 0; k < NDIR; ++k ){
+    for( dir_t k = 0; k < RDIR; ++k ){
       auto [dy,dx] = COMPASS[ k ];
       auto Y = y + dy;
       auto X = x + dx;

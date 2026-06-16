@@ -2,7 +2,6 @@
 # pragma once
 //////////////////////////////////////////////////////
 # include "config.h"
-# include "io.h"
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 ////////////////////////////////////////////[ Picker ]
@@ -31,18 +30,12 @@ struct Tscheck { //                              thaTS
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 struct Picker {
-  static constexpr int CAPSTK = 128;
+  static constexpr int CAP = 128; // all caps
 
-  array<Move,CAPSTK> stk;
+  array<Move,CAP> stk;
 
   int T = 0;
   int j = 0;
-
-     Node* node;
-  Bitboard empty_squares;
-  Bitboard pasv_army;
-  Bitboard all;
-  // consider making all Node field
 
   bool has_next() const {
     return ( j < T );
@@ -71,7 +64,7 @@ struct Picker {
   template <dir_t DIR>
   void pick_plus_moves( off_t off ){
     auto attvec = Bitboard::ATTACK_VECTORS[ DIR ][ off ]; 
-    auto cross =  attvec & all;
+    auto cross =  attvec & node->all;
     if( cross.empty( )){
       while( !attvec.empty( )){
         push( off, attvec.lpop(), Move::MOV );
@@ -88,22 +81,13 @@ struct Picker {
     }
   }
 
-  void generate( Node* node );
-  void genki();
-  void genni();
-  void genro();
-
-  //
+  Node* node;
   Tscheck status;
+  //
+  void genki();
   void tscheck();
   void generate_all_moves( Node* node );
-  // Return a bitboard with all pieces that can 
-  // capture on off, note that this is used in move
-  // generation so king captures are excluded cos
-  // king moves are generated beforehand, so at off
-  // usually we have a checking piece that has to be
-  // captured so we check that
-  void capturing( off_t off );
+  void capturing();
   void blocking( off_t off, off_t on );
   void pinners_and_pinned();
   void unbound();
@@ -119,16 +103,6 @@ struct Picker {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
-// Plan of Campaign
-// ###################################################
-// #### + figure a name for freelancers
-// #### + review a bit
-// #### + get rook movs in one direction
-// #### + get knight movs
-// #### + tesuto
-// #### - perft
-// ###################################################
-// ###################################################
 // ###################################################
 // ###################################################
 // ###################################################

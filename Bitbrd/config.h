@@ -49,15 +49,15 @@ struct Figure {
 //////////////////////////////////////////////////////
 struct Node {
   static vector <string> split( const string& line );
+  static Node cons( const string& fen );
   
-  // occ[ clr | NIL ] - occupancy
-  array<Bitboard,NTYP> occ;
-  // att[ clr | NIL ] - shortrange attacks
-  // att[ clr | NOP ] - longrange attacks
-  array<Bitboard,NTYP> att;
+  array<Bitboard,NTYP> occ; // occupancy
+  array<Bitboard,NTYP> att; // attacks
   array<figtype_t,Bitboard::SIZ> lookup = {};
   vector<figtype_t> bench;
   clr_t the_switch = BLACK;
+  Bitboard all;
+  Bitboard empty = Bitboard::OMEGA;
 
   void insert_coin( char f, off_t rank, off_t file ){
     const auto clr = Figure::getclr( f );
@@ -72,12 +72,16 @@ struct Node {
   }
   void setbit( figtype_t ft, off_t off ){
     occ[ ft ].set( off );
-    occ[ ft & CLR ].set( off ); // occupancy
+    occ[ ft & CLR ].set( off ); // W/B occupancy
+    all.set( off );
+    empty.unset( off );
     establish_att( ft, off );
   }
   void unsetbit( figtype_t ft, off_t off ){
     occ[ ft ].unset( off );
     occ[ ft & CLR ].unset( off );
+    all.unset( off );
+    empty.set( off );
     reestablish_att( ft );
   }
   void land( figtype_t ft, off_t off ){
@@ -139,29 +143,26 @@ struct Node {
   clr_t pasv() const {
     return the_switch ^ CLR;
   }
-  Bitboard all() const {
-    return ( occ[ BLACK ] | occ[ WHITE ]);
-  }
-  Bitboard empty() const {
-    return ~all();
-  }
   clr_t getclr( off_t off ) const {
     return ( CLR & lookup[ off ]);
   }
   fig_t getfig( off_t off ) const {
     return ( FIG & lookup[ off ]);
   }
+  bool isactv( off_t off ) const {
+    return ( getclr( off ) == actv( ));
+  }
   bool ispasv( off_t off ) const {
-    return ( getclr( off ) ^ the_switch );
+    return ( getclr( off ) == pasv( ));
   }
   // scan if active rook/queen can be deployed at off
   template <dir_t DIR>
-  void scan_plus( off_t off, Bitboard& cap ){
-    auto cross = Bitboard::ATTACK_VECTORS[ DIR ][ off ] & all();
+  void scan_plus( off_t off, Bitboard& units ){
+    auto cross = Bitboard::ATTACK_VECTORS[ DIR ][ off ] & all;
     if( cross.empty( )){ return; }
     auto on = cross.peek<DIR>();
     if( lookup[on] == ( actv()|ROOK )){
-      cap.set( on );
+      units.set( on );
     }
   }
   
@@ -170,6 +171,7 @@ struct Node {
   bool undafire( off_t off, clr_t clr ) const;
   bool islegal( Move mov );
   Bitboard deploy( off_t off );
+  string getfen() const;
 };
 //////////////////////////////////////////////////////
 }

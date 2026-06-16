@@ -15,6 +15,7 @@ struct Search {
 
   Search( Node node ): node( std::move( node )){}
   u64 perft( u8 depth );
+  void perft_fork( u8 depth );
 };
 //////////////////////////////////////////////////////
 }

@@ -14,11 +14,11 @@ using u64 = uint64_t;
 //////////////////////////////////////////////////////
 using off_t = i8;
 //////////////////////////////////////////////////////
-//  BLACK          WHITE 1000 COLOR BIT MASK
-// 0 0000 SRNG    8 1000 0100 RANGE BIT MASK
-// 1 0001 KING    9 1001   01 KING   | QUEEN
-// 2 0010 KNIGHT 10 1010   10 KNIGHT | ROOK
-// 3 0011 PAWN   11 1011   11 PAWN   | BISHOP
+//  BLACK          WHITE  1000 COLOR BIT MASK
+// 0 0000 SRNG    8 1000  0100 RANGE BIT MASK
+// 1 0001 KING    9 1001    01 KING   | QUEEN
+// 2 0010 KNIGHT 10 1010    10 KNIGHT | ROOK
+// 3 0011 PAWN   11 1011    11 PAWN   | BISHOP
 // 4 0100 LRNG   12 1100
 // 5 0101 QUEEN  13 1101
 // 6 0110 ROOK   14 1110

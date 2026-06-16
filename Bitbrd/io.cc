@@ -60,11 +60,11 @@ ostream& operator<<( ostream& s, const Node& node ){
 }
 //////////////////////////////////////////////////////
 ostream& operator<<( ostream& s, const Move& move ){
-  s << Bitboard::getname( move.src());
-  if( move.iscap()){
+  s << Bitboard::getname( move.src( ));
+  if( move.iscap( )){
     s << ':';
   }
-  s << Bitboard::getname( move.dst());
+  s << Bitboard::getname( move.dst( ));
   return s;
 }
 //////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ ostream& operator<<( ostream& s, const Picker& p ){
 ostream& operator<<( ostream& s, const Tscheck& t ){
   s << "checks: " << t.cntr << sp;
   if( t.cntr ){
-    s << Bitboard::getname(t.checking_piece_offset);
+    s << Bitboard::getname( t.checking_piece_offset );
   }
   return s << nl << "pinned:\n" << t.pinned
            << nl << "pinners:\n" << t.pinners;

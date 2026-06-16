@@ -38,6 +38,18 @@ public:
   void exec( const vector<string> &args ) override;
 };
 //////////////////////////////////////////////////////
+class Perft: public Command {
+public:
+  Perft( ComsatStation& comsat ): Command( comsat ){}
+  void exec( const vector<string> &args ) override;
+};
+//////////////////////////////////////////////////////
+class Fen: public Command {
+public:
+  Fen( ComsatStation& comsat ): Command( comsat ){}
+  void exec( const vector<string> &args ) override;
+};
+//////////////////////////////////////////////////////
 //  *  .   \ \   -  @  |  
 // *  . . \ \ \ -  @ @ | | S T A T I O N
 // *  . . \   \  - @ @ |
@@ -55,7 +67,9 @@ public:
     command = {
       { "insert", new Insert( *this )},
       { "select", new Select( *this )},
-      { "undo", new Undo( *this )}
+      { "undo",   new Undo( *this )},
+      { "perft",  new Perft( *this )},
+      { "fen",    new Fen( *this )}
     };
   }
   string fetch( const string& prompt );
