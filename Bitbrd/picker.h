@@ -12,7 +12,7 @@ namespace config {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 struct Tscheck { //                              thaTS
-        i32 cntr;
+        i32 cntr; // double discovered checkmate
       off_t checking_piece_offset;
    Bitboard pinned; 
    Bitboard pinners;
@@ -80,7 +80,6 @@ struct Picker {
       }
     }
   }
-
   Node* node;
   Tscheck status;
   //
@@ -93,6 +92,7 @@ struct Picker {
   void unbound();
   void unbound_knight_moves();
   void unbound_rook_moves();
+  void unbound_pawn_moves();
 };
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////

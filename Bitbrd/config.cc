@@ -157,7 +157,7 @@ string Node::getfen() const {
 struct Tesuto {
   Node node;
   Tesuto( ){
-    string fen = "5KR1/8/8/2n5/2R1r2N/6n1/2N3k1/r7 b - - 0 1";
+    string fen = "4k3/8/8/8/8/4p3/4PP2/4K3 w - - 0 1";
     node = Node::cons( fen );
     cout << node << nl;
   }
@@ -185,11 +185,10 @@ int main() {
   Bitboard::initialize();
   Figure::initialize();         
   if( 1 ){
-    Tesuto().perft( 6 );
+    Tesuto().generate_all_moves();
   } else {
     ComsatStation comsat;
-    string fen = "5KR1/8/8/2n5/2R1r2N/6n1/2N3k1/r7 b - - 0 1";
-    comsat.node = Node::cons( fen );
+    comsat.node = Node::cons( Node::EMPTY );
     comsat.Launch();
   }
 }
@@ -219,11 +218,13 @@ int main() {
 // -   - - - - - - - -   -   - - - - -   - - - - - - -
 // .   . . . . . ... .   ... . . . . .   . . . ... . .
 //
-// + consider making all Node field
-// - is this necessary:
-//   empty_squares = node->empty();
-//   pasv_army = node->occ[ node->pasv() ];
-//
+// - add pawns
+//   + attacks
+//   + tesuto
+//   - single moves unbound
+//     + review picker.{h,cc}
+//     + Bitboard::shift{left,ryte}
+//     - captures
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////

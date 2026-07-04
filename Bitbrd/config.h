@@ -48,6 +48,8 @@ struct Figure {
 //////////////////////////////////////////////[ Node ]
 //////////////////////////////////////////////////////
 struct Node {
+  inline static const string EMPTY = "8/8/8/8/8/8/8/8 b - - 0 1";
+  
   static vector <string> split( const string& line );
   static Node cons( const string& fen );
   
@@ -94,7 +96,7 @@ struct Node {
     lookup[ off ] = NIL;
     return ft;
   }
-  // no lookup update
+  // no lookup update for capturs that will override
   figtype_t blastoff( off_t off ){
     const auto ft = lookup[ off ];
     unsetbit( ft, off );

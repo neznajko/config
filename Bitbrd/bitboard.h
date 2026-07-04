@@ -43,8 +43,12 @@ struct Bitboard {
   static array<Bitboard,SIZ> KATT;
   static array<Bitboard,SIZ> NATT;
   static array<Bitboard,SIZ> RATT;
+  static array<Bitboard,SIZ> BPATT;
+  static array<Bitboard,SIZ> WPATT;
   static array<array<Bitboard,SIZ>,NTYP> ATT;
   static Bitboard OMEGA;
+  static Bitboard AFILE;
+  static Bitboard HFILE;
   static array<array<Bitboard,SIZ>,SIZ> PLUS;
   static array<array<Bitboard,SIZ>,8> ATTACK_VECTORS;
 
@@ -95,6 +99,14 @@ struct Bitboard {
     board ^= rhs.board;
     return *this;
   }
+  Bitboard& operator<<=( i32 shift ){
+    board <<= shift;
+    return *this;
+  }
+  Bitboard& operator>>=( i32 shift ){
+    board >>= shift;
+    return *this;
+  }
   off_t lpop() {
     auto off = __builtin_ctzll( board );
     unset( off );
@@ -134,20 +146,20 @@ struct Bitboard {
   static void initialize_king_attacks();
   static void initialize_knight_attacks();
   static void initialize_rook_attacks();
+  static void initialize_pawn_attacks();
   static void initialize_plus();
   static void initialize();
 };
 //////////////////////////////////////////////////////
-Bitboard operator|( const Bitboard& lhs,
-                    const Bitboard& rhs );
-Bitboard operator^( const Bitboard& lhs,
-                    const Bitboard& rhs );
-Bitboard operator&( const Bitboard& lhs,
-                    const Bitboard& rhs );
+Bitboard operator|( const Bitboard& lhs, const Bitboard& rhs );
+Bitboard operator^( const Bitboard& lhs, const Bitboard& rhs );
+Bitboard operator&( const Bitboard& lhs, const Bitboard& rhs );
 Bitboard operator~( const Bitboard& rhs );
+Bitboard operator<<( const Bitboard& lhs, i32 shift );
+Bitboard operator>>( const Bitboard& lhs, i32 shift );
 //////////////////////////////////////////////////////
 }
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
+/////////////////////////////////////////////////////=

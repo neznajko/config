@@ -1,5 +1,6 @@
 //////////////////////////////////////////////////////
 # include "bitboard.h"
+# include "io.h"
 //////////////////////////////////////////////////////
 # include <utility>
 //////////////////////////////////////////////////////
@@ -10,8 +11,12 @@ constexpr auto SIZ = Bitboard::SIZ;
 array<Bitboard,SIZ> Bitboard::KATT;
 array<Bitboard,SIZ> Bitboard::NATT;
 array<Bitboard,SIZ> Bitboard::RATT;
+array<Bitboard,SIZ> Bitboard::BPATT;
+array<Bitboard,SIZ> Bitboard::WPATT;
 array<array<Bitboard,SIZ>,NTYP> Bitboard::ATT;
 Bitboard Bitboard::OMEGA( -1 );
+Bitboard Bitboard::AFILE;
+Bitboard Bitboard::HFILE;
 array<array<Bitboard,SIZ>,SIZ> Bitboard::PLUS;
 array<array<Bitboard,SIZ>,8> Bitboard::ATTACK_VECTORS;
 //////////////////////////////////////////////////////
@@ -22,10 +27,13 @@ void Bitboard::initialize() {
   initialize_king_attacks();
   initialize_knight_attacks();
   initialize_rook_attacks();
+  initialize_pawn_attacks();
   initialize_plus();
-  ATT[ BLACK | KING   ] = ATT[ WHITE | KING   ] = KATT;
-  ATT[ BLACK | KNIGHT ] = ATT[ WHITE | KNIGHT ] = NATT;
-  ATT[ BLACK | ROOK   ] = ATT[ WHITE | ROOK   ] = RATT;
+  ATT[ BLACK|KING   ] = ATT[ WHITE|KING   ] = KATT;
+  ATT[ BLACK|KNIGHT ] = ATT[ WHITE|KNIGHT ] = NATT;
+  ATT[ BLACK|ROOK   ] = ATT[ WHITE|ROOK   ] = RATT;
+  ATT[ BLACK|PAWN ] = BPATT;
+  ATT[ WHITE|PAWN ] = WPATT;
 }
 //////////////////////////////////////////////////////
 using Paint = std::pair<int,int>;
@@ -93,6 +101,24 @@ void Bitboard::initialize_rook_attacks() {
         X += dx;
       }}}}}
 //////////////////////////////////////////////////////
+void Bitboard::initialize_pawn_attacks(){
+  cout << "Initializing pawn attacks ..." << nl;
+  for( i32 rank = 1; rank < 7; ++rank ){
+    // ryte attacks
+    for( i32 file = 0; file < 7; ++file ){
+      auto off = getoff( rank, file );
+      WPATT[ off ].set( off + 9 );
+      BPATT[ off ].set( off - 7 );
+    }
+    // left attacks
+    for( i32 file = 1; file < 8; ++file ){
+      auto off = getoff( rank, file );
+      WPATT[ off ].set( off + 7 );
+      BPATT[ off ].set( off - 9 );
+    }
+  }
+}
+//////////////////////////////////////////////////////
 void Bitboard::initialize_plus() {
   for( off_t i = 0; i < SIZ; ++i ){
   for( off_t j = 0; j < SIZ; ++j ){
@@ -129,6 +155,12 @@ operator&( const Bitboard& lhs, const Bitboard& rhs ){
 }
 Bitboard operator~( const Bitboard& rhs ){
   return Bitboard( ~rhs.board );
+}
+Bitboard operator<<( const Bitboard& lhs, i32 shift ){
+  return Bitboard( lhs.board << shift );
+}
+Bitboard operator>>( const Bitboard& lhs, i32 shift ){
+  return Bitboard( lhs.board >> shift );
 }
 //////////////////////////////////////////////////////
 }

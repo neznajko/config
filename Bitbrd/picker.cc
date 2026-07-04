@@ -1,5 +1,6 @@
 //////////////////////////////////////////////////////
 # include "picker.h"
+# include "io.h"
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 namespace config {
@@ -187,9 +188,30 @@ void Picker::unbound_rook_moves() {
   }
 }
 //////////////////////////////////////////////////////
+void Picker::unbound_pawn_moves(){
+  auto pawns = ( node->occ[ node->actv()|PAWN ] &
+                 ~status.pinned );
+  if( node->actv() == WHITE ){
+    // single moves
+    auto destinations = (pawns << 8) & node->empty;
+    while( !destinations.empty( )){
+      auto dst = destinations.lpop();
+      push( dst - 8, dst, Move::MOV );
+    }
+  } else {
+    // single moves
+    auto destinations = (pawns >> 8) & node->empty;
+    while( !destinations.empty( )){
+      auto dst = destinations.lpop();
+      push( dst + 8, dst, Move::MOV );
+    }
+  }
+}
+//////////////////////////////////////////////////////
 void Picker::unbound() {
   unbound_knight_moves();
   unbound_rook_moves();
+  unbound_pawn_moves();
 }
 //////////////////////////////////////////////////////
 }
